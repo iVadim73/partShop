@@ -1,0 +1,100 @@
+package by.gvozdovich.partshop.model.entity;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Objects;
+
+public class Bill implements DbEntity {
+    private int billId;
+    private User user;
+    private BigDecimal sum;
+    private BillInfo billInfo;
+    private LocalDate date;
+
+    private Bill() {
+
+    }
+
+    public static class Builder {
+        private Bill newBill;
+
+        public Builder() {
+            newBill = new Bill();
+        }
+
+        public Builder withBillId(int billId) {
+            newBill.billId = billId;
+            return this;
+        }
+
+        public Builder withUser(User user) {
+            newBill.user = user;
+            return this;
+        }
+
+        public Builder withSum(BigDecimal sum) {
+            newBill.sum = sum;
+            return this;
+        }
+
+        public Builder withBillInfo(BillInfo billInfo) {
+            newBill.billInfo = billInfo;
+            return this;
+        }
+
+        public Builder withDate(LocalDate date) {
+            newBill.date = date;
+            return this;
+        }
+
+        public Bill build() {
+            return newBill;
+        }
+    }
+
+    public int getBillId() {
+        return billId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public BigDecimal getSum() {
+        return sum;
+    }
+
+    public BillInfo getBillInfo() {
+        return billInfo;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Bill bill = (Bill) o;
+        return billId == bill.billId &&
+                user == bill.user &&
+                billInfo == bill.billInfo &&
+                Objects.equals(sum, bill.sum);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(billId, user, sum, billInfo);
+    }
+
+    @Override
+    public String toString() {
+        return "Bill{" +
+                "billId=" + billId +
+                ", user=" + user +
+                ", sum=" + sum +
+                ", billInfo=" + billInfo +
+                '}';
+    }
+}
