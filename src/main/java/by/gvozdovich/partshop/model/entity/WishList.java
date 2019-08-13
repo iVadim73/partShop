@@ -2,6 +2,11 @@ package by.gvozdovich.partshop.model.entity;
 
 import java.util.Objects;
 
+/**
+ * Representation of account wish lists
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class WishList implements DbEntity {
     private int wishListId;
     private User user;

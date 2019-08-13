@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Representation of account transactions
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Bill implements DbEntity {
     private int billId;
     private User user;

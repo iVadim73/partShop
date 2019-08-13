@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class BrandSpecificationById implements DbEntitySpecification {
     private int id;
-    private static final String SQL = "SELECT * FROM brand WHERE brand_id=(?)";
+    private static final String SQL = "SELECT brand_id, name, country, info, is_active FROM brand WHERE brand_id=(?)";
 
     public BrandSpecificationById(int id) {
         this.id = id;

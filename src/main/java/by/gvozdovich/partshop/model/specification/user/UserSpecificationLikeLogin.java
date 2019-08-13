@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class UserSpecificationLikeLogin implements DbEntitySpecification {
     private String login;
-    private static final String SQL = "SELECT * FROM user WHERE login LIKE (?)";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE login LIKE (?)";
 
     public UserSpecificationLikeLogin(String login) {
         this.login = login;

@@ -1,10 +1,6 @@
 package by.gvozdovich.partshop.controller.servlet;
 
-import by.gvozdovich.partshop.controller.command.ActionFactory;
-import by.gvozdovich.partshop.controller.command.Command;
-import by.gvozdovich.partshop.controller.command.CommandPathConstant;
-import by.gvozdovich.partshop.controller.command.EmptyCommand;
-import by.gvozdovich.partshop.model.exception.ServiceException;
+import by.gvozdovich.partshop.controller.command.*;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,7 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Optional;
 
-@WebServlet({"/controller"})
+/**
+ * main servlet
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+@WebServlet(urlPatterns = {"/"})
 public class ControllerServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -27,15 +28,9 @@ public class ControllerServlet extends HttpServlet {
     }
 
     private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Optional<Command> optionalCommand = ActionFactory.defineCommand(req.getParameter("command"));
+        Optional<Command> optionalCommand = CommandFactory.defineCommand(req.getParameter(CommandVarConstant.COMMAND));
         Command command = optionalCommand.orElse(new EmptyCommand());
-        Router page = new Router();
-        try {
-            page = command.execute(req);
-        } catch (ServiceException e) {
-            page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
-            throw new ServletException("Process request fail", e); // FIXME: 2019-07-26 бросать ошибку???
-        }
+        Router page = command.execute(req);
 
         if(page != null) {
             if (page.getRouterType().equals(Router.RouterType.REDIRECT)) {
@@ -46,6 +41,7 @@ public class ControllerServlet extends HttpServlet {
             }
         } else {
             page.setPage(CommandPathConstant.PATH_PAGE_INDEX);
+            resp.sendRedirect(page.getPage());
         }
     }
 }

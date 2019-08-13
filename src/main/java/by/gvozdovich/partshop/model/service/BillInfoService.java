@@ -1,7 +1,7 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
 import by.gvozdovich.partshop.model.entity.BillInfo;
+import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.repository.BillInfoRepository;
@@ -12,12 +12,15 @@ import by.gvozdovich.partshop.model.specification.billinfo.BillInfoSpecification
 import by.gvozdovich.partshop.model.specification.billinfo.BillInfoSpecificationByInfo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BillInfoService {
+/**
+ * encapsulates {@link BillInfo} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class BillInfoService implements Service {
     private static BillInfoService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -36,26 +39,20 @@ public class BillInfoService {
 
     public boolean add(String info) throws ServiceException {
         DbEntitySpecification specification = new BillInfoSpecificationByInfo(info);
-        try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.next()) {
-                BillInfo billInfo = new BillInfo.Builder()
-                        .withInfo(info)
-                        .build();
-                try {
-                    shopDataRepository.addDBEntity(billInfo);
-                } catch (RepositoryException e) {
-                    throw new ServiceException("bill info add fail", e);
-                }
-                logger.info("bill info " + info + " added");
-            } else {
-                logger.warn("bill info " + info + " already added");
-                return false;
+        List<BillInfo> billInfoList = takeBillInfo(specification);
+        if (billInfoList.isEmpty()) {
+            BillInfo billInfo = new BillInfo.Builder()
+                    .withInfo(info)
+                    .build();
+            try {
+                shopDataRepository.addDBEntity(billInfo);
+            } catch (RepositoryException e) {
+                throw new ServiceException("bill info add fail", e);
             }
-        } catch (RepositoryException e) {
-            throw new ServiceException("bill info add fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("bill info add SQL fail", e);
+            logger.info("bill info " + info + " added");
+        } else {
+            logger.warn("bill info " + info + " already added");
+            return false;
         }
         return true;
     }
@@ -73,8 +70,8 @@ public class BillInfoService {
         String info = billInfo.getInfo();
         DbEntitySpecification specification = new BillInfoSpecificationByInfo(info);
         try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.isBeforeFirst()) {
+            List<BillInfo> billInfoList = takeBillInfo(specification);
+            if (billInfoList.isEmpty()) {
                 shopDataRepository.updateDBEntity(billInfo);
                 logger.info("bill info " + info + " updated");
             } else {
@@ -82,9 +79,8 @@ public class BillInfoService {
                 return false;
             }
         } catch (RepositoryException e) {
+            logger.error("bill info " + info + " update fail");
             throw new ServiceException("bill info update fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("bill info update SQL fail", e);
         }
         return true;
     }
@@ -100,30 +96,16 @@ public class BillInfoService {
         if (billInfoList.isEmpty()) {
             throw new ServiceException("wrong billInfoId :" + id);
         }
-        BillInfo billInfo = billInfoList.get(0);
-        return billInfo;
+        return billInfoList.get(0);
     }
 
     private List<BillInfo> takeBillInfo(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
         List<BillInfo> billInfoList = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take bill info fail", e);
+        for (DbEntity dbEntity: dbEntityList) {
+            billInfoList.add((BillInfo) dbEntity);
         }
-        try {
-            while (resultSet.next()) {
-                BillInfo billInfo = new BillInfo.Builder()
-                        .withBillInfoId(resultSet.getInt(ServiceConstant.BILL_INFO_ID))
-                        .withInfo(resultSet.getString(ServiceConstant.INFO))
-                        .build();
-
-                billInfoList.add(billInfo);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take bill info fail", e);
-        }
+        logger.info("take bill info " + specification + " successful");
         return billInfoList;
     }
 }

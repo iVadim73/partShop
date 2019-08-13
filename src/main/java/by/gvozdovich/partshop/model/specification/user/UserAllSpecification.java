@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UserAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM user";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user";
 
     public UserAllSpecification() {
     }

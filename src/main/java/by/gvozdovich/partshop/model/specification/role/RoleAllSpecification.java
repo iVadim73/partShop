@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class RoleAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM role";
+    private static final String SQL = "SELECT role_id, type FROM role";
 
     public RoleAllSpecification() {
     }

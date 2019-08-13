@@ -1,5 +1,10 @@
 package by.gvozdovich.partshop.model;
 
+/**
+ * All tables name of DB
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class ServiceConstant {
     public static final String USER_ID = "user_id";
     public static final String PART_ID = "part_id";
@@ -40,4 +45,7 @@ public class ServiceConstant {
     public static final String PART_COUNT = "part_count";
     public static final String PASSWORD = "password";
 
+    private ServiceConstant() {
+
+    }
 }

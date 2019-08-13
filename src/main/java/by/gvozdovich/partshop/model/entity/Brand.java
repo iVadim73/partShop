@@ -2,6 +2,11 @@ package by.gvozdovich.partshop.model.entity;
 
 import java.util.Objects;
 
+/**
+ * Representation of brands
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Brand implements DbEntity {
     private int brandId;
     private String name;

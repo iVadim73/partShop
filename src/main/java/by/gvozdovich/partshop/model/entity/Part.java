@@ -3,6 +3,11 @@ package by.gvozdovich.partshop.model.entity;
 import java.math.BigDecimal;
 import java.util.Objects;
 
+/**
+ * Representation of parts
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Part implements DbEntity {
     private int partId;
     private String catalogNo;
@@ -101,7 +106,7 @@ public class Part implements DbEntity {
         return price;
     }
 
-    public String getPictureURL() {
+    public String getPictureUrl() {
         return pictureUrl;
     }
 

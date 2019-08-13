@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class UserSpecificationByLoginAndPassword implements DbEntitySpecification {
     private String login;
     private String password;
-    private static final String SQL = "SELECT * FROM user WHERE login=(?) AND password=(?)";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE login=(?) AND password=(?)";
 
     public UserSpecificationByLoginAndPassword(String login, String password) {
         this.login = login;

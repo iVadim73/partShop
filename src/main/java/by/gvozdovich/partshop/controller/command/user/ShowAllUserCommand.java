@@ -3,45 +3,58 @@ package by.gvozdovich.partshop.controller.command.user;
 import by.gvozdovich.partshop.controller.command.Command;
 import by.gvozdovich.partshop.controller.command.CommandPathConstant;
 import by.gvozdovich.partshop.controller.command.CommandVarConstant;
+import by.gvozdovich.partshop.controller.command.tag.TagCommand;
 import by.gvozdovich.partshop.controller.servlet.Router;
-import by.gvozdovich.partshop.controller.tag.DataToCustomTag;
 import by.gvozdovich.partshop.model.entity.User;
 import by.gvozdovich.partshop.model.exception.ServiceException;
-import by.gvozdovich.partshop.model.logic.UserService;
+import by.gvozdovich.partshop.model.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * take and show all User from DB
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class ShowAllUserCommand implements Command {
 
     public ShowAllUserCommand() {
     }
 
+    /**
+     * @return String URI page that
+     * forward to error page if an error happens
+     * forward to page with result
+     */
     @Override
-    public Router execute(HttpServletRequest request) throws ServiceException {
+    public Router execute(HttpServletRequest request) {
         Router page = new Router();
 
-        String type = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
-        List<User> users = null;
+        try {
+            String type = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
+            List<User> users = null;
 
-        switch (type) {
-            case CommandVarConstant.ADMIN :
-                users = UserService.getInstance().takeAllUser();
-                page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLUSER_FOR_ADMIN);
-                break;
-            case CommandVarConstant.SELLER :
-                users = UserService.getInstance().takeAllUserForSeller();
-                page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLUSER_FOR_SELLER);
-                break;
-            default:
-                //access fail
-                page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
-                break;
+            page = new TagCommand().execute(request);
+
+            switch (type) {
+                case CommandVarConstant.ADMIN:
+                    users = UserService.getInstance().takeAllUser();
+                    page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLUSER_FOR_ADMIN);
+                    break;
+                case CommandVarConstant.SELLER:
+                    users = UserService.getInstance().takeAllUserForSeller();
+                    page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLUSER_FOR_SELLER);
+                    break;
+                default:
+                    //request.setAttribute(CommandVarConstant.CONDITION, "access fail");
+                    page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
+                    break;
+            }
+
+            request.setAttribute(CommandVarConstant.USERS, users);
+        } catch (ServiceException e) {
+            page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
-
-        request.setAttribute(CommandVarConstant.USERS, users);
-
-        DataToCustomTag dataToCustomTag = new DataToCustomTag(request);
-        dataToCustomTag.makePageCount();
 
         return page;
     }

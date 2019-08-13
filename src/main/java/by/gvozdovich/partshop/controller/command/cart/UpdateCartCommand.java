@@ -1,42 +1,56 @@
 package by.gvozdovich.partshop.controller.command.cart;
 
 import by.gvozdovich.partshop.controller.command.Command;
+import by.gvozdovich.partshop.controller.command.CommandPathConstant;
 import by.gvozdovich.partshop.controller.command.CommandVarConstant;
 import by.gvozdovich.partshop.controller.command.validator.CartValidator;
 import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Cart;
 import by.gvozdovich.partshop.model.exception.ServiceException;
-import by.gvozdovich.partshop.model.logic.CartService;
+import by.gvozdovich.partshop.model.service.CartService;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * update Cart on DB
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class UpdateCartCommand implements Command {
 
     public UpdateCartCommand() {
     }
 
+    /**
+     * @return String URI page that
+     * forward to error page if an error happens
+     * forward to previous page
+     */
     @Override
-    public Router execute(HttpServletRequest request) throws ServiceException {
-        String strCount = request.getParameter(CommandVarConstant.COUNT);
+    public Router execute(HttpServletRequest request) {
+        Router page = new Router();
 
-        CartValidator validator = new CartValidator();
-        if (!validator.countValidate(strCount)) {
-            throw new ServiceException("wrong data");
-        }
+        try {
+            String strCount = request.getParameter(CommandVarConstant.COUNT);
 
-        int count = Integer.parseInt(strCount);
-        if (count == 0) {
-            request.setAttribute(CommandVarConstant.CONDITION, "count must be positive");
-        } else {
-            int cartId = Integer.parseInt(request.getParameter(CommandVarConstant.CART_ID));
-            Cart cart = CartService.getInstance().takeCartById(cartId);
-
-            if (CartService.getInstance().update(cartId, cart.getUser(), cart.getPart(), count)) {
-                request.setAttribute(CommandVarConstant.CONDITION, "cart updated successfully");
+            CartValidator validator = new CartValidator();
+            if (!validator.countValidate(strCount)) {
+                page = goError(request, "wrong data");
             } else {
-                request.setAttribute(CommandVarConstant.CONDITION, "cart updated error");
+                int count = Integer.parseInt(strCount);
+                if (count == 0) {
+                    request.setAttribute(CommandVarConstant.CONDITION, "count must be positive");
+                } else {
+                    int cartId = Integer.parseInt(request.getParameter(CommandVarConstant.CART_ID));
+                    Cart cart = CartService.getInstance().takeCartById(cartId);
+                    CartService.getInstance().update(cartId, cart.getUser(), cart.getPart(), count);
+                    request.setAttribute(CommandVarConstant.CONDITION, "cart updated successfully");
+                }
+                page = new ShowAllCartCommand().execute(request);
             }
+        } catch (ServiceException e) {
+            page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
-        Router page = new ShowAllCartCommand().execute(request);
+
         return page;
     }
 }

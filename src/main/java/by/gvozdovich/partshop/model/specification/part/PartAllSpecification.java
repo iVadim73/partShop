@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class PartAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM part";
+    private static final String SQL = "SELECT part_id, catalog_no, original_catalog_no, info, price, picture, wait, brand_id, stock_count, is_active FROM part";
 
     public PartAllSpecification() {
     }

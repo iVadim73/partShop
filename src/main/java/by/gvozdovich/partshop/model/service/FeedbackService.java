@@ -1,9 +1,6 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
-import by.gvozdovich.partshop.model.entity.Feedback;
-import by.gvozdovich.partshop.model.entity.Part;
-import by.gvozdovich.partshop.model.entity.User;
+import by.gvozdovich.partshop.model.entity.*;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.repository.DataRepository;
@@ -11,16 +8,19 @@ import by.gvozdovich.partshop.model.repository.FeedbackRepository;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
 import by.gvozdovich.partshop.model.specification.feedback.FeedbackAllSpecification;
 import by.gvozdovich.partshop.model.specification.feedback.FeedbackSpecificationById;
+import by.gvozdovich.partshop.model.specification.feedback.FeedbackSpecificationByPartId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FeedbackService {
+/**
+ * encapsulates {@link Feedback} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class FeedbackService implements Service {
     private static FeedbackService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -37,11 +37,10 @@ public class FeedbackService {
         shopDataRepository = FeedbackRepository.getInstance();
     }
 
-    public boolean add(User user, Part part, LocalDate date, String comment, int star) throws ServiceException {
+    public boolean add(User user, Part part, String comment, int star) throws ServiceException {
         Feedback feedback = new Feedback.Builder()
                 .withUser(user)
                 .withPart(part)
-                .withDate(date)
                 .withComment(comment)
                 .withStar(star)
                 .build();
@@ -91,49 +90,26 @@ public class FeedbackService {
         return takeFeedback(specification);
     }
 
-    public Feedback takeFeedbackById(int id) throws ServiceException {
-        DbEntitySpecification specification = new FeedbackSpecificationById(id);
-        List<Feedback> feedbacks = takeFeedback(specification);
-        if (feedbacks.isEmpty()) {
-            throw new ServiceException("wrong feedbackId :" + id);
+    public Feedback takeFeedbackById(int feedbackId) throws ServiceException {
+        DbEntitySpecification specification = new FeedbackSpecificationById(feedbackId);
+        List<Feedback> feedbackList = takeFeedback(specification);
+        if (feedbackList.isEmpty()) {
+            throw new ServiceException("wrong feedbackId :" + feedbackId);
         }
-        Feedback feedback = feedbacks.get(0);
-        return feedback;
+        return feedbackList.get(0);
+    }
+
+    public List<Feedback> takeAllFeedbackByPartId(int partId) throws ServiceException {
+        DbEntitySpecification specification = new FeedbackSpecificationByPartId(partId);
+        return takeFeedback(specification);
     }
 
     private List<Feedback> takeFeedback(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
-        List<Feedback> feedbacks = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take feedback fail", e);
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
+        List<Feedback> feedbackList = new ArrayList<>();
+        for (DbEntity dbEntity: dbEntityList) {
+            feedbackList.add((Feedback) dbEntity);
         }
-        try {
-            while (resultSet.next()) {
-                int userId = resultSet.getInt(ServiceConstant.USER_ID);
-                User user = UserService.getInstance().takeUserById(userId);
-
-                int partId = resultSet.getInt(ServiceConstant.PART_ID);
-                Part part = PartService.getInstance().takePartById(partId);
-
-                LocalDate date = Timestamp.valueOf(resultSet.getString(ServiceConstant.DATE))
-                        .toLocalDateTime().toLocalDate();
-
-                Feedback feedback = new Feedback.Builder()
-                        .withFeedbackId(resultSet.getInt(ServiceConstant.FEEDBACK_ID))
-                        .withUser(user)
-                        .withPart(part)
-                        .withDate(date)
-                        .withComment(resultSet.getString(ServiceConstant.COMMENT))
-                        .withStar(resultSet.getInt(ServiceConstant.STAR))
-                        .build();
-
-                feedbacks.add(feedback);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take feedback fail", e);
-        }
-        return feedbacks;
+        return feedbackList;
     }
 }

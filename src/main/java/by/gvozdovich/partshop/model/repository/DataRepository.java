@@ -4,48 +4,32 @@ import by.gvozdovich.partshop.model.connectionpool.DbConnectionPool;
 import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.ConnectionPoolException;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
-import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.List;
 
+/**
+ * encapsulates common functionality interaction with database
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public interface DataRepository {
-    void addDBEntity(DbEntity dbEntity) throws RepositoryException;
+    int addDBEntity(DbEntity dbEntity) throws RepositoryException;
     void updateDBEntity(DbEntity DbEntity) throws RepositoryException;
     void removeDBEntity(DbEntity dbEntity) throws RepositoryException;
-    default ResultSet query(DbEntitySpecification specification) throws RepositoryException {
-        ResultSet resultSet;
-        Connection connection = getConnection();
-        PreparedStatement statement;
-        try {
-            statement = specification.specified(connection);
-            resultSet = statement.executeQuery();
-        } catch (SpecificationException e) {
-            throw new RepositoryException("Repository statement fail", e);
-        } catch (SQLException e) {
-            throw new RepositoryException("Repository execute fail", e);
-        }
-        getConnectionPool().returnConnection(connection);
-        return resultSet;
-    }
+    List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException;
 
     default Connection getConnection() throws RepositoryException {
-        try {
-            Connection connection = getConnectionPool().getConnection();
-            return connection;
-        } catch (ConnectionPoolException e) {
-            throw new RepositoryException("get connection", e);
-        }
-    }
-
-    default DbConnectionPool getConnectionPool(){
         Logger logger = LogManager.getLogger();
         try {
-            return DbConnectionPool.getInstance();
+            DbConnectionPool dbConnectionPool = DbConnectionPool.getInstance();
+            try {
+                return dbConnectionPool.getConnection();
+            } catch (ConnectionPoolException e) {
+                throw new RepositoryException("get connection", e);
+            }
         } catch (ConnectionPoolException e) {
             logger.fatal("get logger error", e);
             throw new RuntimeException(e);

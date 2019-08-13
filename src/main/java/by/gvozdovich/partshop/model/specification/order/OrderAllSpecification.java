@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class OrderAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM orders";
+    private static final String SQL = "SELECT order_id, part_id, user_id, order_date, cost, condition_id, condition_date, is_active, part_count, bill_id FROM orders ORDER BY condition_date DESC";
 
     public OrderAllSpecification() {
     }

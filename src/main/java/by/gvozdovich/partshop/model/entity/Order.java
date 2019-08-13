@@ -4,6 +4,11 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Representation of orders
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Order implements DbEntity {
     private int orderId;
     private User user;

@@ -6,11 +6,20 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+/**
+ * sign out User
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class SignOutCommand implements Command {
 
     public SignOutCommand() {
     }
 
+    /**
+     * @return String URI page that
+     * forward to index page
+     */
     @Override
     public Router execute(HttpServletRequest request) {
         Router page = new Router();

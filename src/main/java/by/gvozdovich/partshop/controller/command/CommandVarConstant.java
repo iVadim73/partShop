@@ -1,8 +1,14 @@
 package by.gvozdovich.partshop.controller.command;
 
+/**
+ * All vars of application
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class CommandVarConstant {
-    public static final String USER_LOGIN = "userLogin";
+    public static final String CURRENT_LOGIN = "currentLogin";
     public static final String CONDITION = "condition";
+    public static final String CONDITIONS = "conditions";
     public static final String SUM = "sum";
     public static final String BILLS = "bills";
     public static final String BRAND_ID = "brandId";
@@ -31,6 +37,7 @@ public class CommandVarConstant {
     public static final String STOCK_COUNT = "stockCount";
     public static final String PART_OF_CATALOG_NO = "partOfPartCatalogNo";
     public static final String PARTS = "parts";
+    public static final String PART = "part";
     public static final String BRAND = "brand";
     public static final String LOGIN = "login";
     public static final String PASSWORD = "password";
@@ -61,4 +68,15 @@ public class CommandVarConstant {
     public static final String ROLE_ID = "roleId";
     public static final String BILL_INFO_LIST = "billInfoList";
     public static final String BILL_INFO_ID = "billInfoId";
+    public static final String COMMAND = "command";
+    public static final String CART = "cart";
+    public static final String ORDER_ID = "orderId";
+    public static final String ORDER = "order";
+    public static final String CONDITION_ID = "conditionId";
+    public static final String FEEDBACKS = "feedbacks";
+    public static final String FEEDBACK_ID = "feedbackId";
+
+    private CommandVarConstant() {
+
+    }
 }

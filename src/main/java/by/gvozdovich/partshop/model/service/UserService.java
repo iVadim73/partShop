@@ -1,6 +1,6 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
+import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.entity.Role;
 import by.gvozdovich.partshop.model.entity.User;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
@@ -11,14 +11,15 @@ import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
 import by.gvozdovich.partshop.model.specification.user.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserService {
+/**
+ * encapsulates {@link User} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class UserService implements Service {
     private static UserService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -35,50 +36,39 @@ public class UserService {
         shopDataRepository = UserRepository.getInstance();
     }
 
-    public boolean registration(String login, String password, String email, long phone, String name, Role role) throws ServiceException {
+    public boolean registrate(String login, String password, String email, long phone, String name, Role role) throws ServiceException {
         DbEntitySpecification specification = new UserSpecificationByLoginOrEmail(login, email);
-        try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.next()) {
-                User.Builder builder = new User.Builder();
-                User user = builder.withLogin(login)
-                        .withNewPassword(password)
-                        .withEmail(email)
-                        .withPhone(phone)
-                        .withName(name)
-                        .withType(role)
-                        .build();
-                try {
-                    shopDataRepository.addDBEntity(user);
-                } catch (RepositoryException e) {
-                    throw new ServiceException("registration fail", e);
-                }
-                logger.info("user " + login + " registered");
-            } else {
-                return false;
+        List<User> userList = takeUser(specification);
+        if (userList.isEmpty()) {
+            User.Builder builder = new User.Builder();
+            User user = builder.withLogin(login)
+                    .withNewPassword(password)
+                    .withEmail(email)
+                    .withPhone(phone)
+                    .withName(name)
+                    .withType(role)
+                    .build();
+            try {
+                shopDataRepository.addDBEntity(user);
+            } catch (RepositoryException e) {
+                throw new ServiceException("registration fail", e);
             }
-        } catch (RepositoryException e) {
-            throw new ServiceException("registration fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("registration SQL fail", e);
+            logger.info("user " + login + " registered");
+        } else {
+            return false;
         }
         return true;
     }
 
     public boolean signin(String login, String password) throws ServiceException {
         DbEntitySpecification specification = new UserSpecificationByLoginAndPassword(login, password);
-        try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if(resultSet.next()) {
-                logger.info("user " + login + " signed in");
-                return true;
-            }
-            return false;
-        } catch (RepositoryException e) {
-            throw new ServiceException("sign in fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("sign in SQL fail", e);
+        List<User> userList = takeUser(specification);
+        if(!userList.isEmpty()) {
+            logger.info("user " + login + " signed in");
+            User user = takeUserByLogin(login);
+            return user.getIsActive();
         }
+        return false;
     }
 
     public boolean activateDeactivate(User user) throws ServiceException {
@@ -120,6 +110,18 @@ public class UserService {
                 .withType(role)
                 .withComment(comment)
                 .withIsActive(isActive)
+                .build();
+        return realUpdate(newUser);
+    }
+
+    public boolean update(int userId, long phone, String name, double discount, int star, String comment) throws ServiceException {
+        User user = takeUserById(userId);
+        User newUser = takeBuilder(user)
+                .withPhone(phone)
+                .withName(name)
+                .withDiscount(discount)
+                .withStar(star)
+                .withComment(comment)
                 .build();
         return realUpdate(newUser);
     }
@@ -176,15 +178,15 @@ public class UserService {
         String email = user.getEmail();
         DbEntitySpecification specification = new UserSpecificationByLoginOrEmail(login, email);
         try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.isBeforeFirst()) {
+            List<User> userList = takeUser(specification);
+            if (userList.isEmpty()) {
                 shopDataRepository.updateDBEntity(user);
                 logger.info("user " + login + " updated");
             } else {
-                while (resultSet.next()) {
-                    int userId = user.getUserId();
-                    int rsUserId = resultSet.getInt(ServiceConstant.USER_ID);
-                    if (userId == rsUserId) {
+                int userId = user.getUserId();
+                for (User currentUser: userList) {
+                    int currentUserId = currentUser.getUserId();
+                    if (userId == currentUserId) {
                         shopDataRepository.updateDBEntity(user);
                         logger.info("user " + login + " updated");
                         return true;
@@ -195,8 +197,6 @@ public class UserService {
             }
         } catch (RepositoryException e) {
             throw new ServiceException("update user fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("update user SQL fail", e);
         }
         return true;
     }
@@ -217,8 +217,7 @@ public class UserService {
         if (users.isEmpty()) {
             throw new ServiceException("wrong userId :" + id);
         }
-        User user = users.get(0);
-        return user;
+        return users.get(0);
     }
 
     public User takeUserByLogin(String login) throws ServiceException {
@@ -227,8 +226,7 @@ public class UserService {
         if (users.isEmpty()) {
             throw new ServiceException("wrong login :" + login);
         }
-        User user = users.get(0);
-        return user;
+        return users.get(0);
     }
 
     public List<User> takeUser(String data) throws ServiceException {
@@ -237,41 +235,11 @@ public class UserService {
     }
 
     private List<User> takeUser(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
-        List<User> users = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take user fail", e);
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
+        List<User> userList = new ArrayList<>();
+        for (DbEntity dbEntity: dbEntityList) {
+            userList.add((User) dbEntity);
         }
-        try {
-            while (resultSet.next()) {
-                int roleId = resultSet.getInt(ServiceConstant.ROLE_ID);
-                Role role = RoleService.getInstance().takeRoleById(roleId);
-                LocalDate registrationDate = Timestamp.valueOf(resultSet.getString(ServiceConstant.REGISTRATION_DATE))
-                        .toLocalDateTime().toLocalDate();
-
-                User user = new User.Builder()
-                        .withUserId(resultSet.getInt(ServiceConstant.USER_ID))
-                        .withLogin(resultSet.getString(ServiceConstant.LOGIN))
-                        .withPassword(resultSet.getString(ServiceConstant.PASSWORD))
-                        .withEmail(resultSet.getString(ServiceConstant.EMAIL))
-                        .withPhone(resultSet.getLong(ServiceConstant.PHONE))
-                        .withName(resultSet.getString(ServiceConstant.NAME))
-                        .withRegistrationDate(registrationDate)
-                        .withDiscount(resultSet.getDouble(ServiceConstant.DISCOUNT))
-                        .withStar(resultSet.getInt(ServiceConstant.STAR))
-                        .withComment(resultSet.getString(ServiceConstant.COMMENT))
-                        .withBill(resultSet.getBigDecimal(ServiceConstant.BILL))
-                        .withType(role)
-                        .withIsActive(resultSet.getBoolean(ServiceConstant.IS_ACTIVE))
-                        .build();
-
-                users.add(user);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take user fail", e);
-        }
-        return users;
+        return userList;
     }
 }

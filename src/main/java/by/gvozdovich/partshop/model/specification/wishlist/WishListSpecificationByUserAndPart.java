@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class WishListSpecificationByUserAndPart implements DbEntitySpecification {
     private int userId;
     private int partId;
-    private static final String SQL = "SELECT * FROM wish_list WHERE user_id=(?) AND part_id=(?)";
+    private static final String SQL = "SELECT wish_list_id, user_id, part_id FROM wish_list WHERE user_id=(?) AND part_id=(?)";
 
     public WishListSpecificationByUserAndPart(int userId, int partId) {
         this.userId = userId;

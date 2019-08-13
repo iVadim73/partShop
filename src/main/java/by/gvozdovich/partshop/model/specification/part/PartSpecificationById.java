@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class PartSpecificationById implements DbEntitySpecification {
     private int id;
-    private static final String SQL = "SELECT * FROM part WHERE part_id=(?)";
+    private static final String SQL = "SELECT part_id, catalog_no, original_catalog_no, info, price, picture, wait, brand_id, stock_count, is_active FROM part WHERE part_id=(?)";
 
     public PartSpecificationById(int id) {
         this.id = id;

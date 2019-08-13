@@ -3,30 +3,44 @@ package by.gvozdovich.partshop.controller.command.cart;
 import by.gvozdovich.partshop.controller.command.Command;
 import by.gvozdovich.partshop.controller.command.CommandPathConstant;
 import by.gvozdovich.partshop.controller.command.CommandVarConstant;
+import by.gvozdovich.partshop.controller.command.tag.TagCommand;
 import by.gvozdovich.partshop.controller.servlet.Router;
-import by.gvozdovich.partshop.controller.tag.DataToCustomTag;
 import by.gvozdovich.partshop.model.entity.Cart;
 import by.gvozdovich.partshop.model.exception.ServiceException;
-import by.gvozdovich.partshop.model.logic.CartService;
+import by.gvozdovich.partshop.model.service.CartService;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
+/**
+ * take and show all Cart from DB
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class ShowAllCartCommand implements Command {
 
     public ShowAllCartCommand() {
     }
 
+    /**
+     * @return String URI page that
+     * forward to error page if an error happens
+     * forward to page with result
+     */
     @Override
-    public Router execute(HttpServletRequest request) throws ServiceException {
+    public Router execute(HttpServletRequest request) {
         Router page = new Router();
-        String login = (String) request.getSession().getAttribute(CommandVarConstant.USER_LOGIN);
-        List<Cart> carts = CartService.getInstance().takeCartByUserLogin(login);
-        request.setAttribute(CommandVarConstant.CARTS, carts);
 
-        DataToCustomTag dataToCustomTag = new DataToCustomTag(request);
-        dataToCustomTag.makePageCount();
+        try {
+            String currentLogin = (String) request.getSession().getAttribute(CommandVarConstant.CURRENT_LOGIN);
+            List<Cart> carts = CartService.getInstance().takeCartByUserLogin(currentLogin);
+            request.setAttribute(CommandVarConstant.CARTS, carts);
 
-        page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLCART);
+            page = new TagCommand().execute(request);
+            page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLCART);
+        } catch (ServiceException e) {
+            page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
+        }
+
         return page;
     }
 }

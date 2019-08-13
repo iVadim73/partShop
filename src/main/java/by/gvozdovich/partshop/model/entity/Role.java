@@ -2,6 +2,11 @@ package by.gvozdovich.partshop.model.entity;
 
 import java.util.Objects;
 
+/**
+ * Representation of account roles
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Role implements DbEntity {
     private int roleId;
     private String type;

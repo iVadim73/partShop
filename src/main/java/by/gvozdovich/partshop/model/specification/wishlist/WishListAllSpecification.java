@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class WishListAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM wish_list";
+    private static final String SQL = "SELECT wish_list_id, user_id, part_id FROM wish_list";
 
     public WishListAllSpecification() {
     }

@@ -6,19 +6,27 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+/**
+ * proxy of connection
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 class ProxyConnection implements Connection {
     private Connection connection;
 
-    public ProxyConnection(Connection connection) {
+    ProxyConnection(Connection connection) {
         this.connection = connection;
     }
 
+    /**
+     * method returns connection to the pool after sql-execution
+     */
     @Override
     public void close() {
         try {
-            DbConnectionPool.getInstance().returnConnection(connection);
+            DbConnectionPool.getInstance().returnConnection(this);
         } catch (ConnectionPoolException e) {
-        // FIXME: 2019-07-19 нельзя пробробросить исключение
+            // FIXME: 2019-07-19 нельзя пробробросить исключение
         }
     }
 
@@ -238,6 +246,16 @@ class ProxyConnection implements Connection {
     }
 
     @Override
+    public <T> T unwrap(Class<T> iface) throws SQLException {
+        return connection.unwrap(iface);
+    }
+
+    @Override
+    public boolean isWrapperFor(Class<?> iface) throws SQLException {
+        return connection.isWrapperFor(iface);
+    }
+
+    @Override
     public Statement createStatement() throws SQLException {
         return connection.createStatement();
     }
@@ -277,13 +295,5 @@ class ProxyConnection implements Connection {
         connection.rollback();
     }
 
-    @Override
-    public <T> T unwrap(Class<T> iface) throws SQLException {
-        return connection.unwrap(iface);
-    }
 
-    @Override
-    public boolean isWrapperFor(Class<?> iface) throws SQLException {
-        return connection.isWrapperFor(iface);
-    }
 }

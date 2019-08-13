@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class UserSpecificationByLogin implements DbEntitySpecification {
     private String login;
-    private static final String SQL = "SELECT * FROM user WHERE login=(?)";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE login=(?)";
 
     public UserSpecificationByLogin(String login) {
         this.login = login;

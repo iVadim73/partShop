@@ -1,7 +1,7 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
 import by.gvozdovich.partshop.model.entity.Condition;
+import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.repository.ConditionRepository;
@@ -12,12 +12,15 @@ import by.gvozdovich.partshop.model.specification.condition.ConditionSpecificati
 import by.gvozdovich.partshop.model.specification.condition.ConditionSpecificationByName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ConditionService {
+/**
+ * encapsulates {@link Condition} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class ConditionService implements Service {
     private static ConditionService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -36,27 +39,21 @@ public class ConditionService {
 
     public boolean add(String name, String info) throws ServiceException {
         DbEntitySpecification specification = new ConditionSpecificationByName(name);
-        try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.next()) {
-                Condition condition = new Condition.Builder()
-                        .withName(name)
-                        .withInfo(info)
-                        .build();
-                try {
-                    shopDataRepository.addDBEntity(condition);
-                } catch (RepositoryException e) {
-                    throw new ServiceException("condition add fail", e);
-                }
-                logger.info("condition " + name + " added");
-            } else {
-                logger.warn("condition " + name + " already added");
-                return false;
+        List<Condition> conditionList = takeCondition(specification);
+        if (conditionList.isEmpty()) {
+            Condition condition = new Condition.Builder()
+                    .withName(name)
+                    .withInfo(info)
+                    .build();
+            try {
+                shopDataRepository.addDBEntity(condition);
+            } catch (RepositoryException e) {
+                throw new ServiceException("condition add fail", e);
             }
-        } catch (RepositoryException e) {
-            throw new ServiceException("condition add fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("condition add SQL fail", e);
+            logger.info("condition " + name + " added");
+        } else {
+            logger.warn("condition " + name + " already added");
+            return false;
         }
         return true;
     }
@@ -75,8 +72,8 @@ public class ConditionService {
         String name = condition.getName();
         DbEntitySpecification specification = new ConditionSpecificationByName(name);
         try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.isBeforeFirst()) {
+            List<Condition> conditionList = takeCondition(specification);
+            if (conditionList.isEmpty()) {
                 shopDataRepository.updateDBEntity(condition);
                 logger.info("condition " + name + " updated");
             } else {
@@ -85,8 +82,6 @@ public class ConditionService {
             }
         } catch (RepositoryException e) {
             throw new ServiceException("condition update fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("condition update SQL fail", e);
         }
         return true;
     }
@@ -102,31 +97,15 @@ public class ConditionService {
         if (conditions.isEmpty()) {
             throw new ServiceException("wrong conditionId :" + id);
         }
-        Condition condition = conditions.get(0);
-        return condition;
+        return conditions.get(0);
     }
 
     private List<Condition> takeCondition(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
-        List<Condition> conditions = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take condition fail", e);
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
+        List<Condition> conditionList = new ArrayList<>();
+        for (DbEntity dbEntity: dbEntityList) {
+            conditionList.add((Condition) dbEntity);
         }
-        try {
-            while (resultSet.next()) {
-                Condition condition = new Condition.Builder()
-                        .withConditionId(resultSet.getInt(ServiceConstant.CONDITION_ID))
-                        .withName(resultSet.getString(ServiceConstant.NAME))
-                        .withInfo(resultSet.getString(ServiceConstant.INFO))
-                        .build();
-
-                conditions.add(condition);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take condition fail", e);
-        }
-        return conditions;
+        return conditionList;
     }
 }

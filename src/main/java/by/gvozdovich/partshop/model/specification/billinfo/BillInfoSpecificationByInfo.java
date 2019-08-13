@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class BillInfoSpecificationByInfo implements DbEntitySpecification {
     private String info;
-    private static final String SQL = "SELECT bill_info_id FROM bill_info WHERE info=(?)";
+    private static final String SQL = "SELECT bill_info_id, info FROM bill_info WHERE info=(?)";
 
     public BillInfoSpecificationByInfo(String info) {
         this.info = info;

@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class FeedbackAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM feedback";
+    private static final String SQL = "SELECT feedback_id, user_id, part_id, date, comment, star FROM feedback ORDER BY date DESC";
 
     public FeedbackAllSpecification() {
     }

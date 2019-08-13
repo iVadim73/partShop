@@ -2,6 +2,11 @@ package by.gvozdovich.partshop.model.entity;
 
 import java.util.Objects;
 
+/**
+ * Representation of account transactions info
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class BillInfo implements DbEntity {
 
     private int billInfoId;

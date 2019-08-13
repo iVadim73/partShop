@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class CartAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM cart";
+    private static final String SQL = "SELECT cart_id, user_id, part_id, count FROM cart";
 
     public CartAllSpecification() {
     }

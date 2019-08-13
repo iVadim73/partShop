@@ -7,45 +7,63 @@ import by.gvozdovich.partshop.controller.command.validator.UserValidator;
 import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.User;
 import by.gvozdovich.partshop.model.exception.ServiceException;
-import by.gvozdovich.partshop.model.logic.UserService;
+import by.gvozdovich.partshop.model.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * update User on DB
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class UpdateUserDataCommand implements Command {
 
     public UpdateUserDataCommand() {
     }
 
+    /**
+     * @return String URI page that
+     * forward to error page if an error happens
+     * forward to previous page
+     */
     @Override
-    public Router execute(HttpServletRequest request) throws ServiceException {
+    public Router execute(HttpServletRequest request) {
         Router page = new Router();
 
-        String strPhone = request.getParameter(CommandVarConstant.PHONE);
-        String name = request.getParameter(CommandVarConstant.NAME);
+        try {
+            String strPhone = request.getParameter(CommandVarConstant.PHONE);
+            String name = request.getParameter(CommandVarConstant.NAME);
 
-        UserValidator validator = new UserValidator();
-        if(!(validator.phoneValidate(strPhone) && validator.nameValidate(name))) {
-            throw new ServiceException("wrong data");
-        }
+            UserValidator validator = new UserValidator();
+            if (!(validator.phoneValidate(strPhone) && validator.nameValidate(name))) {
+                page = goError(request, "wrong data");
+            } else {
+                long phone = Long.valueOf(strPhone);
+                String currentLogin = (String) request.getSession().getAttribute(CommandVarConstant.CURRENT_LOGIN);
 
-        long phone = Long.valueOf(strPhone);
-        String login = (String) request.getSession().getAttribute(CommandVarConstant.USER_LOGIN);
-        if (login == null) {
-            request.setAttribute(CommandVarConstant.CONDITION, "You have to sign in!");
-            page.setPage(CommandPathConstant.PATH_PAGE_SIGNIN);
-            return page;
-        }
-        User user = UserService.getInstance().takeUserByLogin(login);
+                if (currentLogin == null) {
+                    request.setAttribute(CommandVarConstant.CONDITION, "You have to sign in!");
+                    page.setPage(CommandPathConstant.PATH_PAGE_SIGNIN);
+                } else {
+                    User user = UserService.getInstance().takeUserByLogin(currentLogin);
 
-        if (UserService.getInstance().updatePhone(user, phone)) {
-            user = UserService.getInstance().takeUserByLogin(login);
-            if (UserService.getInstance().updateName(user, name)) {
-                request.setAttribute(CommandVarConstant.CONDITION, "name and phone updated successfully");
+                    if (UserService.getInstance().updatePhone(user, phone)) {
+                        user = UserService.getInstance().takeUserByLogin(currentLogin);
+                        if (UserService.getInstance().updateName(user, name)) {
+                            request.setAttribute(CommandVarConstant.CONDITION, "name and phone updated successfully");
+                        } else {
+                            request.setAttribute(CommandVarConstant.CONDITION, "name updated error");
+                        }
+                    } else {
+                        request.setAttribute(CommandVarConstant.CONDITION, "phone updated error");
+                    }
+
+                    page = new ShowUserCommand().execute(request);
+                }
             }
-        } else {
-            request.setAttribute(CommandVarConstant.CONDITION, "name and phone updated error");
+        } catch (ServiceException e) {
+            page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 
-        page = new ShowUserCommand().execute(request);
         return page;
     }
 }

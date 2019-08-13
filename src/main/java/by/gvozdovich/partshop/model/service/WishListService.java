@@ -1,9 +1,6 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
-import by.gvozdovich.partshop.model.entity.Part;
-import by.gvozdovich.partshop.model.entity.User;
-import by.gvozdovich.partshop.model.entity.WishList;
+import by.gvozdovich.partshop.model.entity.*;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.repository.DataRepository;
@@ -15,12 +12,15 @@ import by.gvozdovich.partshop.model.specification.wishlist.WishListSpecification
 import by.gvozdovich.partshop.model.specification.wishlist.WishListSpecificationByUserId;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WishListService {
+/**
+ * encapsulates {@link WishList} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class WishListService implements Service {
     private static WishListService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -102,36 +102,14 @@ public class WishListService {
         if (wishListList.isEmpty()) {
             throw new ServiceException("wrong wishListId :" + id);
         }
-        WishList wishList = wishListList.get(0);
-        return wishList;
+        return wishListList.get(0);
     }
 
     private List<WishList> takeWishList(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
         List<WishList> wishListList = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take wishList fail", e);
-        }
-        try {
-            while (resultSet.next()) {
-                int userId = resultSet.getInt(ServiceConstant.USER_ID);
-                User user = UserService.getInstance().takeUserById(userId);
-
-                int partId = resultSet.getInt(ServiceConstant.PART_ID);
-                Part part = PartService.getInstance().takePartById(partId);
-
-                WishList wishList = new WishList.Builder()
-                        .withWishListId(resultSet.getInt(ServiceConstant.WISH_LIST_ID))
-                        .withUser(user)
-                        .withPart(part)
-                        .build();
-
-                wishListList.add(wishList);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take wishList fail", e);
+        for (DbEntity dbEntity: dbEntityList) {
+            wishListList.add((WishList) dbEntity);
         }
         return wishListList;
     }

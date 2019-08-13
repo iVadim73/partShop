@@ -1,7 +1,7 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
 import by.gvozdovich.partshop.model.entity.Brand;
+import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.repository.BrandRepository;
@@ -13,12 +13,15 @@ import by.gvozdovich.partshop.model.specification.brand.BrandSpecificationByName
 import by.gvozdovich.partshop.model.specification.brand.BrandSpecificationLikeName;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BrandService {
+/**
+ * encapsulates {@link Brand} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class BrandService implements Service {
     private static BrandService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -37,29 +40,24 @@ public class BrandService {
 
     public boolean add(String name, String country, String info, boolean isActive) throws ServiceException {
         DbEntitySpecification specification = new BrandSpecificationByName(name);
-        try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.next()) {
-                Brand brand = new Brand.Builder()
-                        .withName(name)
-                        .withCountry(country)
-                        .withInfo(info)
-                        .withIsActive(isActive)
-                        .build();
-                try {
-                    shopDataRepository.addDBEntity(brand);
-                } catch (RepositoryException e) {
-                    throw new ServiceException("brand add fail", e);
-                }
-                logger.info("brand " + name + " added");
-            } else {
-                logger.warn("brand " + name + " already added");
-                return false;
+        List<Brand> brandList = takeBrand(specification);
+
+        if (brandList.isEmpty()) {
+            Brand brand = new Brand.Builder()
+                    .withName(name)
+                    .withCountry(country)
+                    .withInfo(info)
+                    .withIsActive(isActive)
+                    .build();
+            try {
+                shopDataRepository.addDBEntity(brand);
+            } catch (RepositoryException e) {
+                throw new ServiceException("brand add fail", e);
             }
-        } catch (RepositoryException e) {
-            throw new ServiceException("brand add fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("brand add SQL fail", e);
+            logger.info("brand " + name + " added");
+        } else {
+            logger.warn("brand " + name + " already added");
+            return false;
         }
         return true;
     }
@@ -98,14 +96,14 @@ public class BrandService {
         String name = brand.getName();
         DbEntitySpecification specification = new BrandSpecificationByName(name);
         try {
-            ResultSet resultSet = shopDataRepository.query(specification);
-            if (!resultSet.isBeforeFirst()) {
+            List<Brand> brandList = takeBrand(specification);
+            if (brandList.isEmpty()) {
                 shopDataRepository.updateDBEntity(brand);
                 logger.info("brand " + name + " updated");
             } else {
-                while (resultSet.next()) {
-                    int updateBrandId = brand.getBrandId();
-                    int brandId = resultSet.getInt(ServiceConstant.BRAND_ID);
+                int updateBrandId = brand.getBrandId();
+                for (Brand currentBrand: brandList) {
+                    int brandId = currentBrand.getBrandId();
                     if (brandId == updateBrandId) {
                         shopDataRepository.updateDBEntity(brand);
                         logger.info("brand " + name + " updated");
@@ -116,9 +114,8 @@ public class BrandService {
                 return false;
             }
         } catch (RepositoryException e) {
+            logger.error("brand update fail: " + brand);
             throw new ServiceException("brand update fail", e);
-        } catch (SQLException e) {
-            throw new ServiceException("brand update SQL fail", e);
         }
         return true;
     }
@@ -139,33 +136,15 @@ public class BrandService {
         if (brands.isEmpty()) {
             throw new ServiceException("wrong brandId :" + id);
         }
-        Brand brand = brands.get(0);
-        return brand;
+        return brands.get(0);
     }
 
     private List<Brand> takeBrand(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
-        List<Brand> brands = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take brand fail", e);
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
+        List<Brand> brandList = new ArrayList<>();
+        for (DbEntity dbEntity: dbEntityList) {
+            brandList.add((Brand) dbEntity);
         }
-        try {
-            while (resultSet.next()) {
-                Brand brand = new Brand.Builder()
-                        .withBrandId(resultSet.getInt(ServiceConstant.BRAND_ID))
-                        .withName(resultSet.getString(ServiceConstant.NAME))
-                        .withCountry(resultSet.getString(ServiceConstant.COUNTRY))
-                        .withInfo(resultSet.getString(ServiceConstant.INFO))
-                        .withIsActive(resultSet.getInt(ServiceConstant.IS_ACTIVE) == 1)
-                        .build();
-
-                brands.add(brand);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take brand fail", e);
-        }
-        return brands;
+        return brandList;
     }
 }

@@ -8,6 +8,11 @@ import java.util.Objects;
 import java.security.MessageDigest;
 import java.util.ResourceBundle;
 
+/**
+ * Representation of users
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class User implements DbEntity {
     private int userId;
     private String login;
@@ -33,7 +38,7 @@ public class User implements DbEntity {
         try {
             md = MessageDigest.getInstance(MD5);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace(); // FIXME: 2019-07-09
+            e.printStackTrace(); // FIXME: 2019-07-09 хэш исключение
         }
         md.update(password.getBytes());
         String md5Pass = DatatypeConverter.printHexBinary(md.digest());

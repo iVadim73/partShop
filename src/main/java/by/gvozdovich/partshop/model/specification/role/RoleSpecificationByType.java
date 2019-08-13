@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class RoleSpecificationByType implements DbEntitySpecification {
     private String type;
-    private static final String SQL = "SELECT role_id FROM role WHERE type=(?)";
+    private static final String SQL = "SELECT role_id, type FROM role WHERE type=(?)";
 
     public RoleSpecificationByType(String type) {
         this.type = type;

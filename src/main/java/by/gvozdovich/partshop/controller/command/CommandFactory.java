@@ -2,7 +2,12 @@ package by.gvozdovich.partshop.controller.command;
 
 import java.util.Optional;
 
-public class ActionFactory {
+/**
+ * Factory to create instance of {@link Command}
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class CommandFactory {
     public static Optional<Command> defineCommand(String commandName) {
         Optional<Command> current = Optional.empty();
 

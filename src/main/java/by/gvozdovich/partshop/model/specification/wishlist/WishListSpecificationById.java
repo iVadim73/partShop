@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class WishListSpecificationById implements DbEntitySpecification {
     private int wishListId;
-    private static final String SQL = "SELECT * FROM wish_list WHERE wish_list_id=(?)";
+    private static final String SQL = "SELECT wish_list_id, user_id, part_id FROM wish_list WHERE wish_list_id=(?)";
 
     public WishListSpecificationById(int wishListId) {
         this.wishListId = wishListId;

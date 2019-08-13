@@ -1,6 +1,5 @@
-package by.gvozdovich.partshop.model.logic;
+package by.gvozdovich.partshop.model.service;
 
-import by.gvozdovich.partshop.model.ServiceConstant;
 import by.gvozdovich.partshop.model.entity.*;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.ServiceException;
@@ -10,17 +9,19 @@ import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
 import by.gvozdovich.partshop.model.specification.order.OrderAllSpecification;
 import by.gvozdovich.partshop.model.specification.order.OrderSpecificationById;
 import by.gvozdovich.partshop.model.specification.order.OrderSpecificationByUserId;
+import by.gvozdovich.partshop.model.specification.order.OrderSpecificationByUserIdForUser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OrderService {
+/**
+ * encapsulates {@link Order} logic to provide needed data to command layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
+public class OrderService implements Service {
     private static OrderService instance;
     private static Logger logger = LogManager.getLogger();
     private DataRepository shopDataRepository;
@@ -56,25 +57,6 @@ public class OrderService {
         return true;
     }
 
-//    public boolean buy(User user, Part part, BigDecimal cost, Condition condition, int partCount,
-//                       boolean isActive) throws ServiceException {
-//        Order order = new Order.Builder()
-//                .withUser(user)
-//                .withPart(part)
-//                .withCost(cost)
-//                .withCondition(condition)
-//                .withPartCount(partCount)
-//                .withIsActive(isActive)
-//                .build();
-//        try {
-//            ((OrderRepository)shopDataRepository).buy(order);
-//        } catch (RepositoryException e) {
-//            throw new ServiceException("cart buy fail", e);
-//        }
-//        logger.info("order " + order + " added");
-//        return true;
-//    }
-
     public boolean activateDeactivate(Order order) throws ServiceException {
         boolean isActive = !order.getIsActive();
         Order updatedOrder = takeBuilder(order)
@@ -90,21 +72,30 @@ public class OrderService {
         return realUpdate(updatedOrder);
     }
 
-    public boolean update(int orderId, User user, Part part, LocalDate orderDate, BigDecimal cost, Condition condition,
-                          LocalDate conditionDate, int partCount, boolean isActive) throws ServiceException {
-        Order order = new Order.Builder()
-                .withOrderId(orderId)
-                .withUser(user)
-                .withPart(part)
-                .withDateOrder(orderDate)
+    public boolean update(int orderId, BigDecimal cost, Condition condition, int partCount, boolean isActive) throws ServiceException {
+        Order order = takeOrderById(orderId);
+        Order.Builder builder = takeBuilder(order);
+
+        Order newOrder = builder
                 .withCost(cost)
                 .withCondition(condition)
-                .withDateCondition(conditionDate)
                 .withPartCount(partCount)
                 .withIsActive(isActive)
                 .build();
 
-        return realUpdate(order);
+        return realUpdate(newOrder);
+    }
+
+    public boolean update(int orderId, Condition condition, boolean isActive) throws ServiceException {
+        Order order = takeOrderById(orderId);
+        Order.Builder builder = takeBuilder(order);
+
+        Order newOrder = builder
+                .withCondition(condition)
+                .withIsActive(isActive)
+                .build();
+
+        return realUpdate(newOrder);
     }
 
     private Order.Builder takeBuilder(Order order){
@@ -117,7 +108,8 @@ public class OrderService {
                 .withPartCount(order.getPartCount())
                 .withIsActive(order.getIsActive())
                 .withDateOrder(order.getDateOrder())
-                .withDateCondition(order.getDateCondition());
+                .withDateCondition(order.getDateCondition())
+                .withBill(order.getBill());
         return builder;
     }
 
@@ -142,57 +134,27 @@ public class OrderService {
         return takeOrder(specification);
     }
 
+    public List<Order> takeOrderByUserLoginForUser(String login) throws ServiceException {
+        User user = UserService.getInstance().takeUserByLogin(login);
+        DbEntitySpecification specification = new OrderSpecificationByUserIdForUser(user.getUserId());
+        return takeOrder(specification);
+    }
+
     public Order takeOrderById(int id) throws ServiceException {
         DbEntitySpecification specification = new OrderSpecificationById(id);
         List<Order> orders = takeOrder(specification);
         if (orders.isEmpty()) {
             throw new ServiceException("wrong orderId :" + id);
         }
-        Order order = orders.get(0);
-        return order;
+        return orders.get(0);
     }
 
     private List<Order> takeOrder(DbEntitySpecification specification) throws ServiceException {
-        ResultSet resultSet;
-        List<Order> orders = new ArrayList<>();
-        try {
-            resultSet = shopDataRepository.query(specification);
-        } catch (RepositoryException e) {
-            throw new ServiceException("take order fail", e);
+        List<DbEntity> dbEntityList = takeDbEntityList(shopDataRepository, specification);
+        List<Order> orderList = new ArrayList<>();
+        for (DbEntity dbEntity: dbEntityList) {
+            orderList.add((Order) dbEntity);
         }
-        try {
-            while (resultSet.next()) {
-                int userId = resultSet.getInt(ServiceConstant.USER_ID);
-                User user = UserService.getInstance().takeUserById(userId);
-
-                int partId = resultSet.getInt(ServiceConstant.PART_ID);
-                Part part = PartService.getInstance().takePartById(partId);
-
-                int conditionId = resultSet.getInt(ServiceConstant.CONDITION_ID);
-                Condition condition = ConditionService.getInstance().takeConditionById(conditionId);
-
-                LocalDate orderDate = Timestamp.valueOf(resultSet.getString(ServiceConstant.ORDER_DATE))
-                        .toLocalDateTime().toLocalDate();
-                LocalDate conditionDate = Timestamp.valueOf(resultSet.getString(ServiceConstant.CONDITION_DATE))
-                        .toLocalDateTime().toLocalDate();
-
-                Order order = new Order.Builder()
-                        .withOrderId(resultSet.getInt(ServiceConstant.ORDER_ID))
-                        .withUser(user)
-                        .withPart(part)
-                        .withDateOrder(orderDate)
-                        .withCost(resultSet.getBigDecimal(ServiceConstant.COST))
-                        .withCondition(condition)
-                        .withDateCondition(conditionDate)
-                        .withPartCount(resultSet.getInt(ServiceConstant.PART_COUNT))
-                        .withIsActive(resultSet.getBoolean(ServiceConstant.IS_ACTIVE))
-                        .build();
-
-                orders.add(order);
-            }
-        } catch (SQLException e) {
-            throw new ServiceException("take order fail", e);
-        }
-        return orders;
+        return orderList;
     }
 }

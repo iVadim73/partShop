@@ -5,10 +5,16 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.tagext.TagSupport;
 import java.io.IOException;
 
+/**
+ * custom jstl tag for pagination
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class PageListTag extends TagSupport {
     private int pageCount;
     private int elementCount;
     private String command;
+    private String login;
 
     @Override
     public int doStartTag() throws JspException {
@@ -25,22 +31,25 @@ public class PageListTag extends TagSupport {
                     writer.write("<form method=\"post\" action=\"/controller\">\n" +
                             "            <input type=\"hidden\" name=\"command\" value=\"" + command + "\"/>\n" +
                             "            <input type=\"hidden\" name=\"pageCount\" value=\"" + pageCount + "\"/>\n" +
-                            pageCount +
+                            "            <input type=\"hidden\" name=\"login\" value=\"" + login + "\"/>\n" +
+                            "            <button>" + pageCount + "</button>\n" +
                             "            <button type=\"submit\" name=\"nextPage\" value=\"1\">--></button>\n" +
                             "        </form>");
                 } else if (pageCount == lastPage) {
                     writer.write("<form method=\"post\" action=\"/controller\">\n" +
                             "            <input type=\"hidden\" name=\"command\" value=\"" + command + "\"/>\n" +
                             "            <input type=\"hidden\" name=\"pageCount\" value=\"" + pageCount + "\"/>\n" +
+                            "            <input type=\"hidden\" name=\"login\" value=\"" + login + "\"/>\n" +
                             "            <button type=\"submit\" name=\"nextPage\" value=\"-1\"><--</button>\n" +
-                            pageCount +
+                            "            <button>" + pageCount + "</button>\n" +
                             "        </form>");
                 } else {
                     writer.write("<form method=\"post\" action=\"/controller\">\n" +
                             "            <input type=\"hidden\" name=\"command\" value=\"" + command + "\"/>\n" +
                             "            <input type=\"hidden\" name=\"pageCount\" value=\"" + pageCount + "\"/>\n" +
+                            "            <input type=\"hidden\" name=\"login\" value=\"" + login + "\"/>\n" +
                             "            <button type=\"submit\" name=\"nextPage\" value=\"-1\"><--</button>\n" +
-                            pageCount +
+                            "            <button>" + pageCount + "</button>\n" +
                             "            <button type=\"submit\" name=\"nextPage\" value=\"1\">--></button>\n" +
                             "        </form>");
                 }
@@ -61,5 +70,9 @@ public class PageListTag extends TagSupport {
 
     public void setCommand(String command) {
         this.command = command;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 }

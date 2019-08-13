@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class BillInfoAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM bill_info";
+    private static final String SQL = "SELECT bill_info_id, info FROM bill_info";
 
     public BillInfoAllSpecification() {
     }

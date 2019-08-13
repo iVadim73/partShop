@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class BrandSpecificationLikeName implements DbEntitySpecification {
     private String name;
-    private static final String SQL = "SELECT * FROM brand WHERE name LIKE (?)";
+    private static final String SQL = "SELECT brand_id, name, country, info, is_active FROM brand WHERE name LIKE (?)";
 
     public BrandSpecificationLikeName(String name) {
         this.name = name;

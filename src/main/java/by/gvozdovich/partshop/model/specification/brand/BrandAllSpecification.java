@@ -8,7 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class BrandAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM brand";
+    private static final String SQL = "SELECT brand_id, name, country, info, is_active FROM brand";
 
     public BrandAllSpecification() {
     }

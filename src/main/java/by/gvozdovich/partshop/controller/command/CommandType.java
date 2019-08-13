@@ -7,15 +7,21 @@ import by.gvozdovich.partshop.controller.command.cart.DeleteFromCartCommand;
 import by.gvozdovich.partshop.controller.command.cart.ShowAllCartCommand;
 import by.gvozdovich.partshop.controller.command.cart.UpdateCartCommand;
 import by.gvozdovich.partshop.controller.command.brand.*;
+import by.gvozdovich.partshop.controller.command.feedback.AddFeedbackCommand;
+import by.gvozdovich.partshop.controller.command.feedback.DeleteFeedbackCommand;
 import by.gvozdovich.partshop.controller.command.language.SetLanguageCommand;
-import by.gvozdovich.partshop.controller.command.order.AddOrderCommand;
-import by.gvozdovich.partshop.controller.command.order.ShowAllOrderCommand;
+import by.gvozdovich.partshop.controller.command.order.*;
 import by.gvozdovich.partshop.controller.command.part.*;
 import by.gvozdovich.partshop.controller.command.user.*;
 import by.gvozdovich.partshop.controller.command.wishlist.AddWishListCommand;
 import by.gvozdovich.partshop.controller.command.wishlist.DeleteFromWishListCommand;
 import by.gvozdovich.partshop.controller.command.wishlist.ShowAllWishListCommand;
 
+/**
+ * All types of application {@link Command}
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public enum CommandType {
     REGISTRATION(new RegistrationCommand()),
     SIGNIN(new SignInCommand()),
@@ -52,12 +58,19 @@ public enum CommandType {
     SHOW_USER_FOR_SELLER_AND_ADMIN(new ShowUserForSellerAndAdminCommand()),
     ACTIVATE_DEACTIVATE_USER(new ActivateDeactivateUserCommand()),
     UPDATE_USER_DATA_FOR_ADMIN(new UpdateUserDataForAdminCommand()),
-    UPDATE_USER_BILL(new UpdateUserBillCommand()),
+    UPDATE_USER_DATA_FOR_SELLER(new UpdateUserDataForSellerCommand()),
     ADD_BILL(new AddBillCommand()),
+    TO_REGISTRATION(new ToRegistrationCommand()),
+    TO_SIGNIN(new ToSigninCommand()),
+    TO_ADD_BRAND_FORM(new ToAddBrandFormCommand()),
+    ADD_ALL_TO_ORDER(new AddAllOrderCommand()),
+    TO_UPDATE_ORDER_FORM(new ToUpdateOrderFormCommand()),
+    UPDATE_ORDER(new UpdateOrderCommand()),
+    SHOW_PART(new ShowPartCommand()),
+    SEARCH_ORDER(new SearchOrderCommand()),
+    ADD_FEEDBACK(new AddFeedbackCommand()),
+    DELETE_FEEDBACK(new DeleteFeedbackCommand()),
 
-
-
-    // TODO: 2019-06-30 more
     ;
 
     private Command command;

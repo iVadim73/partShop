@@ -10,7 +10,7 @@ import java.sql.SQLException;
 public class UserSpecificationByLoginOrEmail implements DbEntitySpecification {
     private String login;
     private String email;
-    private static final String SQL = "SELECT user_id FROM user WHERE login=(?) OR email=(?)";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE login=(?) OR email=(?)";
 
     public UserSpecificationByLoginOrEmail(String login, String email) {
         this.login = login;

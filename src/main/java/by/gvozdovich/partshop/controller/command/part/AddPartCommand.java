@@ -1,53 +1,89 @@
 package by.gvozdovich.partshop.controller.command.part;
 
 import by.gvozdovich.partshop.controller.command.Command;
+import by.gvozdovich.partshop.controller.command.CommandPathConstant;
 import by.gvozdovich.partshop.controller.command.CommandVarConstant;
 import by.gvozdovich.partshop.controller.command.validator.PartValidator;
 import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Brand;
 import by.gvozdovich.partshop.model.exception.ServiceException;
-import by.gvozdovich.partshop.model.logic.BrandService;
-import by.gvozdovich.partshop.model.logic.PartService;
+import by.gvozdovich.partshop.model.service.BrandService;
+import by.gvozdovich.partshop.model.service.PartService;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 
+/**
+ * add Part to DB
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class AddPartCommand implements Command {
 
     public AddPartCommand() {
     }
 
+    /**
+     * @return String URI page that
+     * forward to error page if an error happens
+     * forward to show all part page if added
+     */
     @Override
-    public Router execute(HttpServletRequest request) throws ServiceException {
-        int brandId = Integer.valueOf(request.getParameter(CommandVarConstant.BRAND_ID));
-        Brand brand = BrandService.getInstance().takeBrandById(brandId);
+    public Router execute(HttpServletRequest request) {
+        Router page = new Router();
 
-        String catalogNo = request.getParameter(CommandVarConstant.CATALOG_NO);
-        String originalCatalogNo = request.getParameter(CommandVarConstant.ORIGINAL_CATALOG_NO);
-        String info = request.getParameter(CommandVarConstant.INFO);
-        String strPrice = request.getParameter(CommandVarConstant.PRICE);
-        String pictureUrl = request.getParameter(CommandVarConstant.PICTURE_URL);
-        String strWait = request.getParameter(CommandVarConstant.WAIT);
-        String strStockCount = request.getParameter(CommandVarConstant.STOCK_COUNT);
-        String active = request.getParameter(CommandVarConstant.ACTIVE);
-        boolean isActive = active != null;
+        try {
+            int brandId = Integer.valueOf(request.getParameter(CommandVarConstant.BRAND_ID));
+            Brand brand = BrandService.getInstance().takeBrandById(brandId);
 
-        PartValidator validator = new PartValidator();
-        if(!(validator.catalogNoValidate(catalogNo) && validator.catalogNoValidate(originalCatalogNo)
-                && validator.infoValidate(info) && validator.priceValidate(strPrice)
-                && validator.waitValidate(strWait) && validator.stockCountValidate(strStockCount))) {
-            throw new ServiceException("wrong data");
+            String catalogNo = request.getParameter(CommandVarConstant.CATALOG_NO);
+            String info = request.getParameter(CommandVarConstant.INFO);
+            String originalCatalogNo = request.getParameter(CommandVarConstant.ORIGINAL_CATALOG_NO);
+            String strPrice = request.getParameter(CommandVarConstant.PRICE);
+            strPrice = strPrice.replaceAll(",", ".");
+            String pictureUrl = request.getParameter(CommandVarConstant.PICTURE_URL);
+            String strStockCount = request.getParameter(CommandVarConstant.STOCK_COUNT);
+            String strWait = request.getParameter(CommandVarConstant.WAIT);
+            String active = request.getParameter(CommandVarConstant.ACTIVE);
+            boolean isActive = active != null;
+
+            PartValidator validator = new PartValidator();
+            if (!validator.partValidate(catalogNo, originalCatalogNo, info, strPrice, strWait, strStockCount)) {
+                page = goError(request, "wrong data");
+            } else {
+                BigDecimal price = new BigDecimal(strPrice);
+                int wait = Integer.valueOf(strWait);
+                int stockCount = Integer.valueOf(strStockCount);
+
+                int partId = PartService.getInstance().add(catalogNo, originalCatalogNo, info, price, pictureUrl, wait, brand, stockCount, isActive);
+                if (partId > 0) {
+                    request.setAttribute(CommandVarConstant.CONDITION, "part add completed successfully");
+
+                    String userType = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
+                    page.setRouterType(Router.RouterType.REDIRECT);
+                    String pageToRedirect;
+
+                    switch (userType) {
+                        case CommandVarConstant.ADMIN:
+                        case CommandVarConstant.SELLER:
+                            pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART + "?partId=" + partId;
+                            page.setPage(pageToRedirect);
+                            break;
+                        case CommandVarConstant.BUYER:
+                            pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART_FOR_USER + "?partId=" + partId;
+                            page.setPage(pageToRedirect);
+                            break;
+                        default:
+                            page = goError(request, "access fail");
+                            break;
+                    }
+                } else {
+                    request.setAttribute(CommandVarConstant.CONDITION, "part with this catalogNo and this brand already added");
+                }
+            }
+        } catch (ServiceException e) {
+            page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 
-        BigDecimal price = new BigDecimal(strPrice);
-        int wait = Integer.valueOf(strWait);
-        int stockCount = Integer.valueOf(strStockCount);
-
-        if (PartService.getInstance().add(catalogNo, originalCatalogNo, info, price, pictureUrl, wait, brand, stockCount, isActive)) {
-            request.setAttribute(CommandVarConstant.CONDITION, "part add completed successfully");
-        } else {
-            request.setAttribute(CommandVarConstant.CONDITION, "part add error");
-        }
-        Router page = new ShowAllPartCommand().execute(request);
         return page;
     }
 }

@@ -2,6 +2,11 @@ package by.gvozdovich.partshop.model.entity;
 
 import java.util.Objects;
 
+/**
+ * Representation of account carts
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Cart implements DbEntity {
     private int cartId;
     private User user;

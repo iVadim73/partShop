@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class PartSpecificationByCatalogNoAndBrandId implements DbEntitySpecification {
     private String catalogNo;
     private int brandId;
-    private static final String SQL = "SELECT part_id FROM part WHERE catalog_no=(?) AND brand_id=(?)";
+    private static final String SQL = "SELECT part_id, catalog_no, original_catalog_no, info, price, picture, wait, brand_id, stock_count, is_active FROM part WHERE catalog_no=(?) AND brand_id=(?)";
 
     public PartSpecificationByCatalogNoAndBrandId(String catalogNo, int brandId) {
         this.catalogNo = catalogNo;

@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class UserSpecificationById implements DbEntitySpecification {
     private int userId;
-    private static final String SQL = "SELECT * FROM user WHERE user_id=(?)";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE user_id=(?)";
 
     public UserSpecificationById(int userId) {
         this.userId = userId;

@@ -2,6 +2,11 @@ package by.gvozdovich.partshop.model.entity;
 
 import java.util.Objects;
 
+/**
+ * Representation of order conditions
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Condition implements DbEntity {
     private int conditionId;
     private String name;

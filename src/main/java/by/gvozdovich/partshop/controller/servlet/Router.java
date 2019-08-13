@@ -1,5 +1,10 @@
 package by.gvozdovich.partshop.controller.servlet;
 
+/**
+ * String URI with type
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Router {
     public enum RouterType {
         FORWARD,

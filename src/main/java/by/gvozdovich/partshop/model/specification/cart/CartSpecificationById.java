@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class CartSpecificationById implements DbEntitySpecification {
     private int cartId;
-    private static final String SQL = "SELECT * FROM cart WHERE cart_id=(?)";
+    private static final String SQL = "SELECT cart_id, user_id, part_id, count FROM cart WHERE cart_id=(?)";
 
     public CartSpecificationById(int cartId) {
         this.cartId = cartId;

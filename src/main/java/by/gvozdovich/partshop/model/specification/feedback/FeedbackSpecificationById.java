@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class FeedbackSpecificationById implements DbEntitySpecification {
     private int feedbackId;
-    private static final String SQL = "SELECT * FROM feedback WHERE feedback_id=(?)";
+    private static final String SQL = "SELECT feedback_id, user_id, part_id, date, comment, star FROM feedback WHERE feedback_id=(?)";
 
     public FeedbackSpecificationById(int feedbackId) {
         this.feedbackId = feedbackId;

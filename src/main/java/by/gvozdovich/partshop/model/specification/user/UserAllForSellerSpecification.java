@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UserAllForSellerSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM user WHERE role_id = 2";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE role_id = 2";
 
     public UserAllForSellerSpecification() {
     }

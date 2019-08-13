@@ -3,6 +3,11 @@ package by.gvozdovich.partshop.model.entity;
 import java.time.LocalDate;
 import java.util.Objects;
 
+/**
+ * Representation of feedbacks
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class Feedback implements DbEntity {
     private int feedbackId;
     private User user;

@@ -7,7 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class ConditionAllSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT * FROM conditions";
+    private static final String SQL = "SELECT condition_id, name, info FROM conditions";
 
     public ConditionAllSpecification() {
     }

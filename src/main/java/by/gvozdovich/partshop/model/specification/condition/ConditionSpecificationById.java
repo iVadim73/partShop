@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class ConditionSpecificationById implements DbEntitySpecification {
     private int conditionId;
-    private static final String SQL = "SELECT * FROM conditions WHERE condition_id=(?)";
+    private static final String SQL = "SELECT condition_id, name, info FROM conditions WHERE condition_id=(?)";
 
     public ConditionSpecificationById(int conditionId) {
         this.conditionId = conditionId;

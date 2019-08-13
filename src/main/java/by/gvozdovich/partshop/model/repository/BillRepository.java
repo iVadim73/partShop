@@ -1,17 +1,26 @@
 package by.gvozdovich.partshop.model.repository;
 
-import by.gvozdovich.partshop.model.connectionpool.DbConnectionPool;
-import by.gvozdovich.partshop.model.entity.Bill;
-import by.gvozdovich.partshop.model.entity.Cart;
-import by.gvozdovich.partshop.model.entity.DbEntity;
-import by.gvozdovich.partshop.model.entity.User;
+import by.gvozdovich.partshop.model.ServiceConstant;
+import by.gvozdovich.partshop.model.entity.*;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
-
+import by.gvozdovich.partshop.model.exception.ServiceException;
+import by.gvozdovich.partshop.model.exception.SpecificationException;
+import by.gvozdovich.partshop.model.service.BillInfoService;
+import by.gvozdovich.partshop.model.service.UserService;
+import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
 import java.math.BigDecimal;
 import java.sql.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+/**
+ * class that interacts with the database and accumulates in itself all methods to add/update/remove or query the
+ * {@link Bill} of the application
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class BillRepository implements DataRepository {
-    private DbConnectionPool connectionPool;
     private static BillRepository instance;
     private static final String BILL_ADD_SQL = "INSERT INTO bill (user_id, sum, bill_info_id) VALUES (?, ?, ?)";
     private static final String BILL_UPDATE_SQL = "UPDATE bill SET user_id=(?), sum=(?), bill_info_id=(?) WHERE bill_id=(?)";
@@ -26,12 +35,15 @@ public class BillRepository implements DataRepository {
     }
 
     private BillRepository() {
-        connectionPool = getConnectionPool();
     }
 
     @Override
-    public void addDBEntity(DbEntity dbEntity) throws RepositoryException { // TODO: 2019-07-29 норм???
+    public int addDBEntity(DbEntity dbEntity) throws RepositoryException {
         Connection connection = getConnection();
+        PreparedStatement statement = null;
+        ResultSet rs = null;
+        int autoId = 0;
+
         try {
             connection.setAutoCommit(false);
             Savepoint addBillSavepoint = connection.setSavepoint("addBillSavepoint");
@@ -42,13 +54,16 @@ public class BillRepository implements DataRepository {
             BigDecimal userBill = user.getBill();
             BigDecimal newUserBill = userBill.add(sum);
 
-            PreparedStatement statement;
             try {
-                statement = connection.prepareStatement(BILL_ADD_SQL);
+                statement = connection.prepareStatement(BILL_ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
                 statement.setInt(1, userId);
                 statement.setBigDecimal(2, sum);
                 statement.setInt(3, ((Bill) dbEntity).getBillInfo().getBillInfoId());
-                statement.executeUpdate();
+                statement.execute();
+
+                rs = statement.getGeneratedKeys();
+                rs.next();
+                autoId = rs.getInt(1);
 
                 statement = connection.prepareStatement(USER_UPDATE_SQL);
                 statement.setString(1, user.getLogin());
@@ -63,10 +78,9 @@ public class BillRepository implements DataRepository {
                 statement.setInt(10, user.getRole().getRoleId());
                 statement.setBoolean(11, user.getIsActive());
                 statement.setInt(12, userId);
-                statement.executeUpdate();
+                statement.execute();
 
                 connection.commit();
-
             } catch (SQLException e) {
                 connection.rollback(addBillSavepoint);
                 // TODO: 2019-07-29 log
@@ -74,56 +88,123 @@ public class BillRepository implements DataRepository {
 
             connection.setAutoCommit(true);
 
+            return autoId;
         } catch (SQLException e) {
             throw new RepositoryException("SQL error", e);
+        } finally {
+            try {
+                rs.close();
+            } catch (Exception e) {
+            }
+            try {
+                statement.close();
+            } catch (Exception e) {
+            }
+            try {
+                connection.close();
+            } catch (Exception e) {
+            }
         }
-        connectionPool.returnConnection(connection);
     }
-
-//    @Override
-//    public void addDBEntity(DbEntity dbEntity) throws RepositoryException {
-//        Connection connection = getConnection();
-//        PreparedStatement statement;
-//        try {
-//            statement = connection.prepareStatement(BILL_ADD_SQL);
-//            statement.setInt(1, ((Bill) dbEntity).getUser().getUserId());
-//            statement.setBigDecimal(2, ((Bill) dbEntity).getSum());
-//            statement.setInt(3, ((Bill) dbEntity).getBillInfo().getBillInfoId());
-//            statement.execute();
-//        } catch (SQLException e) {
-//            throw new RepositoryException("add bill", e);
-//        }
-//        connectionPool.returnConnection(connection);
-//    }
 
     @Override
     public void updateDBEntity(DbEntity dbEntity) throws RepositoryException {
         Connection connection = getConnection();
-        PreparedStatement statement;
+        PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(BILL_UPDATE_SQL);
             statement.setInt(1, ((Bill) dbEntity).getUser().getUserId());
             statement.setBigDecimal(2, ((Bill) dbEntity).getSum());
             statement.setInt(3, ((Bill) dbEntity).getBillInfo().getBillInfoId());
             statement.setInt(4, ((Bill) dbEntity).getBillId());
-            statement.executeUpdate();
+            statement.execute();
         } catch (SQLException e) {
             throw new RepositoryException("update", e);
+        } finally {
+            try {
+                statement.close();
+            } catch (Exception e) {
+            }
+            try {
+                connection.close();
+            } catch (Exception e) {
+            }
         }
-        connectionPool.returnConnection(connection);
     }
 
     @Override
     public void removeDBEntity(DbEntity dbEntity) throws RepositoryException {
         Connection connection = getConnection();
-        PreparedStatement statement;
+        PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(BILL_REMOVE_SQL);
             statement.setInt(1, ((Bill) dbEntity).getBillId());
-            statement.executeUpdate();
+            statement.execute();
         } catch (SQLException e) {
             throw new RepositoryException("remove", e);
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+            }
+            try {
+                connection.close();
+            } catch (Exception e) {
+            }
         }
-        connectionPool.returnConnection(connection);
+    }
+
+    @Override
+    public List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException {
+        ResultSet resultSet = null;
+        Connection connection = getConnection();
+        PreparedStatement statement = null;
+        List<DbEntity> billList = new ArrayList<>();
+        try {
+            statement = specification.specified(connection);
+            resultSet = statement.executeQuery();
+            while (resultSet.next()) {
+                int userId = resultSet.getInt(ServiceConstant.USER_ID);
+                int billInfoId = resultSet.getInt(ServiceConstant.BILL_INFO_ID);
+                User user;
+                BillInfo billInfo;
+                try {
+                    user = UserService.getInstance().takeUserById(userId);
+                    billInfo = BillInfoService.getInstance().takeBillInfoById(billInfoId);
+                } catch (ServiceException e) {
+                    throw new RepositoryException("take user or bill info fail", e);
+                }
+                LocalDate date = Timestamp.valueOf(resultSet.getString(ServiceConstant.DATE))
+                        .toLocalDateTime().toLocalDate();
+
+                Bill bill = new Bill.Builder()
+                        .withBillId(resultSet.getInt(ServiceConstant.BILL_ID))
+                        .withUser(user)
+                        .withSum(resultSet.getBigDecimal(ServiceConstant.SUM))
+                        .withBillInfo(billInfo)
+                        .withDate(date)
+                        .build();
+
+                billList.add(bill);
+            }
+        } catch (SpecificationException e) {
+            throw new RepositoryException("Repository statement fail", e);
+        } catch (SQLException e) {
+            throw new RepositoryException("Repository execute fail", e);
+        } finally {
+            try {
+                resultSet.close();
+            } catch (Exception e) {
+            }
+            try {
+                statement.close();
+            } catch (Exception e) {
+            }
+            try {
+                connection.close();
+            } catch (Exception e) {
+            }
+        }
+        return billList;
     }
 }

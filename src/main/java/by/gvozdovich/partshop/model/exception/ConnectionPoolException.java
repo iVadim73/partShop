@@ -1,5 +1,10 @@
 package by.gvozdovich.partshop.model.exception;
 
+/**
+ * The exception will be thrown from connection pool layer
+ * @author Vadim Gvozdovich
+ * @version 1.0
+ */
 public class ConnectionPoolException extends Exception{
     public ConnectionPoolException() {
         super();

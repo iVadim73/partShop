@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class PartSpecificationLikeCatalogNoForUser implements DbEntitySpecification {
     private String catalogNo;
-    private static final String SQL = "SELECT * FROM part WHERE catalog_no LIKE (?) OR original_catalog_no LIKE (?) AND is_active=1";
+    private static final String SQL = "SELECT part_id, catalog_no, original_catalog_no, info, price, picture, wait, brand_id, stock_count, is_active FROM part WHERE catalog_no LIKE (?) OR original_catalog_no LIKE (?) AND is_active=1";
 
     public PartSpecificationLikeCatalogNoForUser(String catalogNo) {
         this.catalogNo = catalogNo;

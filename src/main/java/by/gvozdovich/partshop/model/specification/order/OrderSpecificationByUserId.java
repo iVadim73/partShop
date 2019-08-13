@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class OrderSpecificationByUserId implements DbEntitySpecification {
 
     private int userId;
-    private static final String SQL = "SELECT * FROM orders WHERE user_id=(?)";
+    private static final String SQL = "SELECT order_id, part_id, user_id, order_date, cost, condition_id, condition_date, is_active, part_count, bill_id FROM orders WHERE user_id=(?) ORDER BY condition_date DESC";
 
     public OrderSpecificationByUserId(int userId) {
         this.userId = userId;

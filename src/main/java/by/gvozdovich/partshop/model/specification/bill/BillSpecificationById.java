@@ -9,7 +9,7 @@ import java.sql.SQLException;
 
 public class BillSpecificationById implements DbEntitySpecification {
     private int billId;
-    private static final String SQL = "SELECT * FROM bill WHERE bill_id=(?)";
+    private static final String SQL = "SELECT bill_id, user_id, sum, bill_info_id, date FROM bill WHERE bill_id=(?)";
 
     public BillSpecificationById(int billId) {
         this.billId = billId;
