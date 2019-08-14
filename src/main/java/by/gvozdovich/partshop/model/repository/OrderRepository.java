@@ -51,11 +51,10 @@ public class OrderRepository implements DataRepository {
 
     @Override
     public int addDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            statement = connection.prepareStatement(ORDER_ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(ORDER_ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
             statement.setInt(1, ((Order) dbEntity).getPart().getPartId());
             statement.setInt(2, ((Order) dbEntity).getUser().getUserId());
             statement.setBigDecimal(3, ((Order) dbEntity).getCost());
@@ -66,35 +65,22 @@ public class OrderRepository implements DataRepository {
             statement.execute();
             logger.debug("order added :" + dbEntity);
 
-            rs = statement.getGeneratedKeys();
+            ResultSet rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("add order", e);
-        } finally {
-            try {
-                rs.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void updateDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(ORDER_UPDATE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(ORDER_UPDATE_SQL)
+        ) {
             statement.setInt(1, ((Order) dbEntity).getPart().getPartId());
             statement.setInt(2, ((Order) dbEntity).getUser().getUserId());
             statement.setBigDecimal(3, ((Order) dbEntity).getCost());
@@ -108,51 +94,32 @@ public class OrderRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void removeDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(ORDER_REMOVE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(ORDER_REMOVE_SQL)
+        ) {
             statement.setInt(1, ((Order) dbEntity).getOrderId());
             statement.execute();
             logger.debug("order removed :" + dbEntity);
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException {
-        ResultSet resultSet = null;
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
         List<DbEntity> orderList = new ArrayList<>();
-        try {
-            statement = specification.specified(connection);
-            resultSet = statement.executeQuery();
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = specification.specified(connection);
+            ResultSet resultSet = statement.executeQuery()
+        ) {
             while (resultSet.next()) {
                 int userId = resultSet.getInt(ServiceConstant.USER_ID);
                 int partId = resultSet.getInt(ServiceConstant.PART_ID);
@@ -198,30 +165,17 @@ public class OrderRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
-        } finally {
-            try {
-                resultSet.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
         logger.debug("order query :" + orderList);
         return orderList;
     }
 
     public int buy(Cart cart) throws RepositoryException {
-        Connection connection = getConnection();
         PreparedStatement statement = null;
-        ResultSet rs = null;
         int autoId = 0;
-        try {
+        try (
+            Connection connection = getConnection()
+        ) {
             connection.setAutoCommit(false);
             Savepoint buySavepoint = connection.setSavepoint("buySavepoint");
 
@@ -263,7 +217,7 @@ public class OrderRepository implements DataRepository {
                 statement.setInt(3, MINUS_BILL_INFO_ID);
                 statement.execute();
 
-                rs = statement.getGeneratedKeys();
+                ResultSet rs = statement.getGeneratedKeys();
                 rs.next();
                 int autoBillId = rs.getInt(1);
 
@@ -298,16 +252,9 @@ public class OrderRepository implements DataRepository {
             throw new RepositoryException("SQL error", e);
         } finally {
             try {
-                rs.close();
-            } catch (Exception e) {
-            }
-            try {
                 statement.close();
             } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
+                /* attempt to close  */
             }
         }
     }

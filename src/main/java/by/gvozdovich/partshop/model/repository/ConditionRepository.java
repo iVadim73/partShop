@@ -42,45 +42,31 @@ public class ConditionRepository implements DataRepository {
 
     @Override
     public int addDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            statement = connection.prepareStatement(ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
             statement.setString(1, ((Condition) dbEntity).getName());
             statement.setString(2, ((Condition) dbEntity).getInfo());
             statement.execute();
             logger.debug("condition added :" + dbEntity);
 
-            rs = statement.getGeneratedKeys();
+            ResultSet rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("add condition", e);
-        } finally {
-            try {
-                rs.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void updateDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(UPDATE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)
+        ) {
             statement.setString(1, ((Condition) dbEntity).getName());
             statement.setString(2, ((Condition) dbEntity).getInfo());
             statement.setInt(3, ((Condition) dbEntity).getConditionId());
@@ -89,50 +75,32 @@ public class ConditionRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("update condition", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void removeDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(REMOVE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(REMOVE_SQL)
+        ) {
             statement.setInt(1, ((Condition) dbEntity).getConditionId());
             statement.execute();
             logger.debug("condition removed :" + dbEntity);
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("remove condition", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }        }
+        }
     }
 
     @Override
     public List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException {
-        ResultSet resultSet = null;
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
         List<DbEntity> conditionList = new ArrayList<>();
-        try {
-            statement = specification.specified(connection);
-            resultSet = statement.executeQuery();
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = specification.specified(connection);
+            ResultSet resultSet = statement.executeQuery()
+        ) {
             while (resultSet.next()) {
                 Condition condition = new Condition.Builder()
                         .withConditionId(resultSet.getInt(ServiceConstant.CONDITION_ID))
@@ -148,19 +116,6 @@ public class ConditionRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
-        } finally {
-            try {
-                resultSet.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
         logger.debug("condition query :" + conditionList);
         return conditionList;

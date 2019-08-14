@@ -31,7 +31,7 @@ public interface DataRepository {
                 throw new RepositoryException("get connection", e);
             }
         } catch (ConnectionPoolException e) {
-            logger.fatal("get logger error", e);
+            logger.fatal("get connection pool error", e);
             throw new RuntimeException(e);
         }
     }

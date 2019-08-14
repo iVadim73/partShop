@@ -41,11 +41,10 @@ public class UserRepository implements DataRepository {
 
     @Override
     public int addDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            statement = connection.prepareStatement(USER_ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(USER_ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
             statement.setString(1, ((User) dbEntity).getLogin());
             statement.setString(2, ((User) dbEntity).getPassword());
             statement.setString(3, ((User) dbEntity).getEmail());
@@ -60,35 +59,22 @@ public class UserRepository implements DataRepository {
             statement.execute();
             logger.debug("user added :" + dbEntity);
 
-            rs = statement.getGeneratedKeys();
+            ResultSet rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("add user", e);
-        } finally {
-            try {
-                rs.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void updateDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(USER_UPDATE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(USER_UPDATE_SQL)
+        ) {
             statement.setString(1, ((User) dbEntity).getLogin());
             statement.setString(2, ((User) dbEntity).getPassword());
             statement.setString(3, ((User) dbEntity).getEmail());
@@ -106,51 +92,32 @@ public class UserRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void removeDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(USER_REMOVE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(USER_REMOVE_SQL)
+        ) {
             statement.setInt(1, ((User) dbEntity).getUserId());
             statement.execute();
             logger.debug("user removed :" + dbEntity);
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException {
-        ResultSet resultSet = null;
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
         List<DbEntity> userList = new ArrayList<>();
-        try {
-            statement = specification.specified(connection);
-            resultSet = statement.executeQuery();
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = specification.specified(connection);
+            ResultSet resultSet = statement.executeQuery()
+        ) {
             while (resultSet.next()) {
                 int roleId = resultSet.getInt(ServiceConstant.ROLE_ID);
                 Role role;
@@ -187,19 +154,6 @@ public class UserRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
-        } finally {
-            try {
-                resultSet.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
         logger.debug("user query :" + userList);
         return userList;

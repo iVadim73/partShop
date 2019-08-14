@@ -43,12 +43,12 @@ public class BillRepository implements DataRepository {
 
     @Override
     public int addDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
         PreparedStatement statement = null;
-        ResultSet rs = null;
         int autoId = 0;
 
-        try {
+        try (
+            Connection connection = getConnection()
+        ) {
             connection.setAutoCommit(false);
             Savepoint addBillSavepoint = connection.setSavepoint("addBillSavepoint");
 
@@ -66,7 +66,7 @@ public class BillRepository implements DataRepository {
                 statement.execute();
 
 
-                rs = statement.getGeneratedKeys();
+                ResultSet rs = statement.getGeneratedKeys();
                 rs.next();
                 autoId = rs.getInt(1);
 
@@ -100,26 +100,19 @@ public class BillRepository implements DataRepository {
             throw new RepositoryException("SQL error", e);
         } finally {
             try {
-                rs.close();
-            } catch (Exception e) {
-            }
-            try {
                 statement.close();
             } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
+                /* attempt to close  */
             }
         }
     }
 
     @Override
     public void updateDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(BILL_UPDATE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(BILL_UPDATE_SQL)
+        ) {
             statement.setInt(1, ((Bill) dbEntity).getUser().getUserId());
             statement.setBigDecimal(2, ((Bill) dbEntity).getSum());
             statement.setInt(3, ((Bill) dbEntity).getBillInfo().getBillInfoId());
@@ -129,51 +122,32 @@ public class BillRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void removeDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(BILL_REMOVE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(BILL_REMOVE_SQL)
+        ) {
             statement.setInt(1, ((Bill) dbEntity).getBillId());
             statement.execute();
             logger.debug("bill removed :" + dbEntity);
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (SQLException e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException {
-        ResultSet resultSet = null;
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
         List<DbEntity> billList = new ArrayList<>();
-        try {
-            statement = specification.specified(connection);
-            resultSet = statement.executeQuery();
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = specification.specified(connection);
+            ResultSet resultSet = statement.executeQuery()
+        ) {
             while (resultSet.next()) {
                 int userId = resultSet.getInt(ServiceConstant.USER_ID);
                 int billInfoId = resultSet.getInt(ServiceConstant.BILL_INFO_ID);
@@ -204,19 +178,6 @@ public class BillRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
-        } finally {
-            try {
-                resultSet.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
         logger.debug("bill query :" + billList);
         return billList;

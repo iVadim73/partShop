@@ -42,11 +42,10 @@ public class FeedbackRepository implements DataRepository {
 
     @Override
     public int addDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        ResultSet rs = null;
-        try {
-            statement = connection.prepareStatement(ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
             statement.setInt(1, ((Feedback) dbEntity).getUser().getUserId());
             statement.setInt(2, ((Feedback) dbEntity).getPart().getPartId());
             statement.setString(3, ((Feedback) dbEntity).getComment());
@@ -54,35 +53,22 @@ public class FeedbackRepository implements DataRepository {
             statement.execute();
             logger.debug("feedback added :" + dbEntity);
 
-            rs = statement.getGeneratedKeys();
+            ResultSet rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("add feedback", e);
-        } finally {
-            try {
-                rs.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void updateDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(UPDATE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(UPDATE_SQL)
+        ) {
             statement.setInt(1, ((Feedback) dbEntity).getUser().getUserId());
             statement.setInt(2, ((Feedback) dbEntity).getPart().getPartId());
             statement.setString(3, ((Feedback) dbEntity).getComment());
@@ -93,51 +79,32 @@ public class FeedbackRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public void removeDBEntity(DbEntity dbEntity) throws RepositoryException {
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
-        try {
-            statement = connection.prepareStatement(REMOVE_SQL);
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = connection.prepareStatement(REMOVE_SQL)
+        ) {
             statement.setInt(1, ((Feedback) dbEntity).getFeedbackId());
             statement.execute();
             logger.debug("feedback removed :" + dbEntity);
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
-        } finally {
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
     }
 
     @Override
     public List<DbEntity> query(DbEntitySpecification specification) throws RepositoryException {
-        ResultSet resultSet = null;
-        Connection connection = getConnection();
-        PreparedStatement statement = null;
         List<DbEntity> feedbackList = new ArrayList<>();
-        try {
-            statement = specification.specified(connection);
-            resultSet = statement.executeQuery();
+        try (
+            Connection connection = getConnection();
+            PreparedStatement statement = specification.specified(connection);
+            ResultSet resultSet = statement.executeQuery()
+        ) {
             while (resultSet.next()) {
                 int userId = resultSet.getInt(ServiceConstant.USER_ID);
                 int partId = resultSet.getInt(ServiceConstant.PART_ID);
@@ -171,19 +138,6 @@ public class FeedbackRepository implements DataRepository {
         } catch (SQLException e) {
             logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
-        } finally {
-            try {
-                resultSet.close();
-            } catch (Exception e) {
-            }
-            try {
-                statement.close();
-            } catch (Exception e) {
-            }
-            try {
-                connection.close();
-            } catch (Exception e) {
-            }
         }
         logger.debug("feedback query :" + feedbackList);
         return feedbackList;

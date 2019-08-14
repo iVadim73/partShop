@@ -65,32 +65,35 @@ public class DbConnectionPool {
      */
     public Connection getConnection() throws ConnectionPoolException {
         lock.lock();
-        int size = getSize();
-        if (size < INITIAL_POOL_SIZE) {
-            for (int i = size; i < INITIAL_POOL_SIZE; i++) {
-                try {
-                    connectionPool.add(createConnection());
-                } catch (SQLException e) {
-                    throw new ConnectionPoolException("Create connection fail", e);
+        try {
+            int size = getSize();
+            if (size < INITIAL_POOL_SIZE) {
+                for (int i = size; i < INITIAL_POOL_SIZE; i++) {
+                    try {
+                        connectionPool.add(createConnection());
+                    } catch (SQLException e) {
+                        throw new ConnectionPoolException("Create connection fail", e);
+                    }
                 }
             }
-        }
 
-        if (connectionPool.isEmpty()) {
-            if (usedConnections.size() < MAX_POOL_SIZE) {
-                try {
-                    connectionPool.add(createConnection());
-                } catch (SQLException e) {
-                    throw new ConnectionPoolException("Create connection fail", e);
+            if (connectionPool.isEmpty()) {
+                if (usedConnections.size() < MAX_POOL_SIZE) {
+                    try {
+                        connectionPool.add(createConnection());
+                    } catch (SQLException e) {
+                        throw new ConnectionPoolException("Create connection fail", e);
+                    }
+                } else {
+                    throw new ConnectionPoolException("Maximum pool size reached, no available connections!");
                 }
-            } else {
-                throw new ConnectionPoolException("Maximum pool size reached, no available connections!");
             }
+            ProxyConnection connection = connectionPool.remove(connectionPool.size() - 1);
+            usedConnections.add(connection);
+            return connection;
+        } finally {
+            lock.unlock();
         }
-        ProxyConnection connection =  connectionPool.remove(connectionPool.size() - 1);
-        usedConnections.add(connection);
-        lock.unlock();
-        return connection;
     }
 
     /**
