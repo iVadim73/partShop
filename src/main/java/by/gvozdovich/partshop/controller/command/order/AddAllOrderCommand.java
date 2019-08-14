@@ -3,6 +3,7 @@ package by.gvozdovich.partshop.controller.command.order;
 import by.gvozdovich.partshop.controller.command.Command;
 import by.gvozdovich.partshop.controller.command.CommandPathConstant;
 import by.gvozdovich.partshop.controller.command.CommandVarConstant;
+import by.gvozdovich.partshop.controller.command.cart.ShowAllCartCommand;
 import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Cart;
 import by.gvozdovich.partshop.model.entity.Part;
@@ -39,12 +40,15 @@ public class AddAllOrderCommand implements Command {
 
         try {
             String currentLogin = (String) request.getSession().getAttribute(CommandVarConstant.CURRENT_LOGIN);
+            List<Cart> carts = CartService.getInstance().takeCartByUserLogin(currentLogin);
 
             if (currentLogin == null) {
                 logger.error("login is null");
                 page = goError(request, "You have to sign in!");
+            } else if (carts.isEmpty()) {
+                page = new ShowAllCartCommand().execute(request);
+                request.setAttribute(CommandVarConstant.CONDITION, "Cart is empty!");
             } else {
-                List<Cart> carts = CartService.getInstance().takeCartByUserLogin(currentLogin);
                 User user = UserService.getInstance().takeUserByLogin(currentLogin);
                 double discount = user.getDiscount();
                 double ratio = (100 - discount) / 100;

@@ -12,11 +12,11 @@ public class UserValidator {
     private static final String PASSWORD_REGEX = "^[\\w\\-]{6,18}$";
     private static final String EMAIL_REGEX = "^(?=.{5,254}$).{1,64}@.{3,255}$";
     private static final String PHONE_REGEX = "^(\\+?\\d{12})|(\\d{11})|(\\d{7})$";
-    private static final String NAME_REGEX = "^[\\w\\- ]{2,35}$";
+    private static final String NAME_REGEX = "^[\\p{L}\\s\\.\\-]{2,35}$";
     private static final String DISCOUNT_REGEX = "^\\d{1,2}(\\.\\d{1,2})?$";
     private static final String STAR_REGEX = "^(10)|\\d$";
     private static final String ROLE_ID_REGEX = "^[1234]$";
-    private static final String COMMENT_REGEX = "^.{0,300}$";
+    private static final String COMMENT_REGEX = "^[\\p{L}\\s\\.\\-]{0,300}$";
 
     public boolean idValidate(String id) {
         return id.matches(ID_REGEX);

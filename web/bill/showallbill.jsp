@@ -9,13 +9,15 @@
     <div style="height: 76%; background-image: url(/picture/index.jpg); background-size: cover">
         <c:choose>
             <c:when test="${bills.isEmpty()}">
-                <fmt:message key="noBill"/>
+                <div class="container-fluid" style="background-color: #80bdff" align="center">
+                    <fmt:message key="noBill"/>
+                </div>
             </c:when>
             <c:otherwise>
                 <table class="table table-striped table-hover" style="background-color: #b9bbbe">
                     <caption style="background-color: #0f6674">
                         <div class="row" style="height: 20px">
-                            <div class="col">Список операций со счётом</div>
+                            <div class="col"><fmt:message key="billOperations"/></div>
                             <div class="col"><lt:pageList pageCount="${pageCount}" elementCount="${bills.size()}" command="show_all_bill" login="${bills[0].user.login}"/></div>
                         </div>
                     </caption>

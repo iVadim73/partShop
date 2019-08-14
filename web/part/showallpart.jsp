@@ -26,13 +26,15 @@
         </div>
         <c:choose>
             <c:when test="${parts.isEmpty()}">
-                <fmt:message key="noPart"/>
+                <div class="container-fluid" style="background-color: #80bdff" align="center">
+                    <fmt:message key="noPart"/>
+                </div>
             </c:when>
             <c:otherwise>
                 <table class="table table-striped table-hover table-sm" style="background-color: #b9bbbe">
                     <caption style="background-color: #0f6674">
                         <div class="row" style="height: 20px">
-                            <div class="col">Список запастей</div>
+                            <div class="col"><fmt:message key="partList"/></div>
                             <div class="col"><lt:pageList pageCount="${pageCount}" elementCount="${parts.size()}" command="show_all_part"/></div>
                         </div>
                     </caption>

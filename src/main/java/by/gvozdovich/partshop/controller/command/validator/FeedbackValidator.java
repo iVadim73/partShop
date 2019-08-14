@@ -7,7 +7,7 @@ package by.gvozdovich.partshop.controller.command.validator;
  */
 public class FeedbackValidator {
     private static final String STAR_REGEX = "^(10)|\\d$";
-    private static final String COMMENT_REGEX = "^.{0,300}$";
+    private static final String COMMENT_REGEX = "^[\\p{L}\\s\\.\\-]{0,300}$";
 
     public boolean starValidate(String star) {
         return star.matches(STAR_REGEX);

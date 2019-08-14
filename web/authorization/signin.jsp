@@ -11,11 +11,11 @@
                 <br/>
                 <div class="form-group">
                     <input class="form-control" style="background-color: #BABABA" type="text" name="login" pattern="^[\w\-]{3,20}$" placeholder="<fmt:message key="login"/>" value="${login}" required>
-                    <small class="form-text text-muted">You can use only....</small>
+                    <small class="form-text text-muted">Your login</small>
                 </div>
                 <div class="form-group">
                     <input class="form-control" style="background-color: #BABABA" type="password" name="password" pattern="^[\w\-]{6,18}$" placeholder="<fmt:message key="password"/>" value="${password}" required>
-                    <small class="form-text text-muted">You can use only....</small>
+                    <small class="form-text text-muted">Your secret password</small>
                 </div>
                 <button class="btn btn-primary btn-block" type="submit"><fmt:message key="signIn"/></button>
             </form>

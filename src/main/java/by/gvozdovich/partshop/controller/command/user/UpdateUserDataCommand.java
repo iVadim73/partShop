@@ -11,6 +11,7 @@ import by.gvozdovich.partshop.model.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 
 /**
  * update User on DB
@@ -33,8 +34,13 @@ public class UpdateUserDataCommand implements Command {
         Router page = new Router();
 
         try {
+            String name = null;
+            try {
+                name = new String(request.getParameter(CommandVarConstant.NAME).getBytes("ISO-8859-1"),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e);
+            }
             String strPhone = request.getParameter(CommandVarConstant.PHONE);
-            String name = request.getParameter(CommandVarConstant.NAME);
 
             UserValidator validator = new UserValidator();
             if (!(validator.phoneValidate(strPhone) && validator.nameValidate(name))) {

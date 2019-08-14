@@ -14,7 +14,6 @@ import java.util.concurrent.Executor;
  * @version 1.0
  */
 class ProxyConnection implements Connection {
-    private static Logger logger = LogManager.getLogger();
     private Connection connection;
 
     ProxyConnection(Connection connection) {
@@ -26,6 +25,7 @@ class ProxyConnection implements Connection {
      */
     @Override
     public void close() {
+        Logger logger = LogManager.getLogger();
         try {
             DbConnectionPool.getInstance().returnConnection(this);
         } catch (ConnectionPoolException e) {

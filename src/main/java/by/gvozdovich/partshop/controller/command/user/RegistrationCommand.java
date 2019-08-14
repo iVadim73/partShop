@@ -12,6 +12,7 @@ import by.gvozdovich.partshop.model.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 
 /**
  * add User to DB
@@ -42,7 +43,12 @@ public class RegistrationCommand implements Command {
             String password = request.getParameter(CommandVarConstant.PASSWORD);
             String email = request.getParameter(CommandVarConstant.EMAIL);
             String phoneStr = request.getParameter(CommandVarConstant.PHONE);
-            String name = request.getParameter(CommandVarConstant.NAME);
+            String name= null;
+            try {
+                name = new String(request.getParameter(CommandVarConstant.NAME).getBytes("ISO-8859-1"),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e);
+            }
 
             UserValidator validator = new UserValidator();
             String valid = validator.registrationValidate(login, password, email, phoneStr, name);

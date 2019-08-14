@@ -6,7 +6,10 @@ import org.apache.logging.log4j.Logger;
 import javax.servlet.*;
 import javax.servlet.annotation.WebFilter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * filter used to prevent xss attacks
@@ -16,9 +19,8 @@ import java.util.Enumeration;
 @WebFilter(urlPatterns = {"/*"})
 public class XssFilter implements Filter {
     private static Logger logger = LogManager.getLogger();
-    private static final String XSS_SCRIPT_TAG = "<script";
-    private static final String XSS_SCRIPT_END_TAG = "</script>";
-    private static final String JAVASCRIPT = "javascript:";
+    private static final Set<String> BLACK_LIST_XSS = new HashSet<>(Arrays.asList(
+            "<script", "</script>", "javascript:", "<", ">" ));
 
     @Override
     public void init(FilterConfig filterConfig) {
@@ -31,7 +33,7 @@ public class XssFilter implements Filter {
         Enumeration<String> parameterNames = servletRequest.getParameterNames();
         while (parameterNames.hasMoreElements()){
             String text = servletRequest.getParameter(parameterNames.nextElement()).toLowerCase();
-            if(text.contains(XSS_SCRIPT_TAG) || text.contains(XSS_SCRIPT_END_TAG) || text.contains(JAVASCRIPT)){
+            if(BLACK_LIST_XSS.contains(text)) {
                 logger.warn("xss detected");
                 RequestDispatcher dispatcher = servletRequest.getServletContext().
                         getRequestDispatcher(CommandPathConstant.PATH_PAGE_ERROR);

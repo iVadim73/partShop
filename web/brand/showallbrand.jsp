@@ -26,13 +26,15 @@
         </div>
         <c:choose>
             <c:when test="${brands.isEmpty()}">
-                <fmt:message key="noBrand"/>
+                <div class="container-fluid" style="background-color: #80bdff" align="center">
+                    <fmt:message key="noBrand"/>
+                </div>
             </c:when>
             <c:otherwise>
                 <table class="table table-striped table-hover table-sm" style="background-color: #b9bbbe">
                     <caption style="background-color: #0f6674">
                         <div class="row" style="height: 20px">
-                            <div class="col">Список производителей</div>
+                            <div class="col"><fmt:message key="brandList"/></div>
                             <div class="col"><lt:pageList pageCount="${pageCount}" elementCount="${brands.size()}" command="show_all_brand"/></div>
                         </div>
                     </caption>

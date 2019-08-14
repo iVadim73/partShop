@@ -21,24 +21,24 @@
                             <fmt:message key="registrationDate"/>: ${registrationDate}
                         </p>
                         <div class="form-group">
-                            <input class="form-control" style="background-color: #BABABA" type="text" name="phone"  placeholder="<fmt:message key="phone"/>" value="${phone}" required>
+                            <input class="form-control" style="background-color: #BABABA" type="text" name="phone" pattern="^(\+?\d{12})|(\d{11})|(\d{7})$" placeholder="<fmt:message key="phone"/>" value="${phone}" required>
                             <small class="form-text text-muted"><fmt:message key="phone"/></small>
                         </div>
 
                         <div class="form-group">
-                            <input class="form-control" style="background-color: #BABABA" type="text" name="name"  placeholder="<fmt:message key="name"/>" value="${name}" required>
+                            <input class="form-control" style="background-color: #BABABA" type="text" name="name" pattern="^[\p{L}\s\.\-]{2,35}$" placeholder="<fmt:message key="name"/>" value="${name}" required>
                             <small class="form-text text-muted"><fmt:message key="name"/></small>
                         </div>
                         <div class="form-group">
-                            <input class="form-control" style="background-color: #BABABA" type="text" name="discount"  placeholder="<fmt:message key="discount"/>" value="${discount}" required>
+                            <input class="form-control" style="background-color: #BABABA" type="text" name="discount" pattern="^\d{1,2}(\.\d{1,2})?$" placeholder="<fmt:message key="discount"/>" value="${discount}" required>
                             <small class="form-text text-muted"><fmt:message key="discount"/></small>
                         </div>
                         <div class="form-group">
-                            <input class="form-control" style="background-color: #BABABA" type="text" name="star"  placeholder="<fmt:message key="star"/>" value="${star}" required>
+                            <input class="form-control" style="background-color: #BABABA" type="text" name="star" pattern="^(10)|\d$" placeholder="<fmt:message key="star"/>" value="${star}" required>
                             <small class="form-text text-muted"><fmt:message key="star"/></small>
                         </div>
                         <div class="form-group">
-                            <input class="form-control" style="background-color: #BABABA" type="text" name="comment"  placeholder="<fmt:message key="comment"/>" value="${comment}" required>
+                            <input class="form-control" style="background-color: #BABABA" type="text" name="comment" pattern="^[\p{L}\s\.\-]{0,300}$" placeholder="<fmt:message key="comment"/>" value="${comment}" required>
                             <small class="form-text text-muted"><fmt:message key="comment"/></small>
                         </div>
                         <p style="color: #c69500">

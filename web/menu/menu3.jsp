@@ -4,10 +4,9 @@
 <jsp:include page="/common/header.jsp"/>
 <body>
     <ftm:setBundle basename="text"/>
-    <div style="height: 76%; background-color: #b9bbbe">
-        </br>
-        menu1
-    <fmt:message key="header.menu3"/>
+    <div style="height: 76%; background-image: url(/picture/index.jpg); background-size: cover">
+    <h1 class="display-4 text-warning" align="center" ><fmt:message key="menu3"/></h1>
+    <h1 class="display-4 text-warning" align="center" ><fmt:message key="menu33"/></h1>
     </div>
 </body>
 <jsp:include page="/common/footer.jsp"/>

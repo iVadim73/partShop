@@ -14,6 +14,7 @@ import by.gvozdovich.partshop.model.service.UserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 
 /**
  * add Feedback to DB
@@ -36,12 +37,17 @@ public class AddFeedbackCommand implements Command {
         Router page = new Router();
 
         try {
+            String comment = null;
+            try {
+                comment = new String(request.getParameter(CommandVarConstant.COMMENT).getBytes("ISO-8859-1"),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e);
+            }
             String currentLogin = (String) request.getSession().getAttribute(CommandVarConstant.CURRENT_LOGIN);
             User user = UserService.getInstance().takeUserByLogin(currentLogin);
             int partId = Integer.parseInt(request.getParameter(CommandVarConstant.PART_ID));
             Part part = PartService.getInstance().takePartById(partId);
             String strStar = request.getParameter(CommandVarConstant.STAR);
-            String comment = request.getParameter(CommandVarConstant.COMMENT);
 
             FeedbackValidator validator = new FeedbackValidator();
             if (!validator.feedbackValidate(strStar, comment)) {

@@ -51,7 +51,7 @@ public class AccessFilter implements Filter {
             CommandType.DELETE_FROM_WISH_LIST.name().toLowerCase(), CommandType.UPDATE_CART.name().toLowerCase(),
             CommandType.DELETE_FROM_CART.name().toLowerCase(), CommandType.ADD_TO_ORDER.name().toLowerCase(),
             CommandType.UPDATE_PASSWORD.name().toLowerCase(), CommandType.UPDATE_USER_DATA.name().toLowerCase(),
-            CommandType.ADD_FEEDBACK.name().toLowerCase()));
+            CommandType.ADD_FEEDBACK.name().toLowerCase(), CommandType.ADD_ALL_TO_ORDER.name().toLowerCase()));
     private static final Set<String> WHITE_COMMAND_FOR_SELLER = new HashSet<>(Arrays.asList(
             CommandType.SHOW_ALL_CART.name().toLowerCase(), CommandType.SHOW_USER.name().toLowerCase(),
             CommandType.SHOW_ALL_WISH_LIST.name().toLowerCase(), CommandType.SIGNOUT.name().toLowerCase(),

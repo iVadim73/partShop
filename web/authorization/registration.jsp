@@ -11,11 +11,11 @@
                 <input type="hidden" name="command" value="registration" />
                 <div class="form-group">
                     <input class="form-control" style="background-color: #BABABA" type="text" name="login" pattern="^[\w\-]{3,20}$" placeholder="<fmt:message key="login"/>" value="${login}" required>
-                    <small class="form-text text-muted">You can use only....</small>
+                    <small class="form-text text-muted">You can use only [\w\-]{3,20}</small>
                 </div>
                 <div class="form-group">
                     <input class="form-control" style="background-color: #BABABA" type="password" name="password" pattern="^[\w\-]{6,18}$" placeholder="<fmt:message key="password"/>" value="${password}" required>
-                    <small class="form-text text-muted">You can use only....</small>
+                    <small class="form-text text-muted">You can use only [\w\-]{3,20}</small>
                 </div>
                 <div class="form-group">
                     <input class="form-control" style="background-color: #BABABA" type="email" name="email" pattern="^(?=.{5,254}$).{1,64}@.{3,255}$" placeholder="<fmt:message key="email"/>" value="${email}" required>
@@ -26,7 +26,7 @@
                     <small class="form-text text-muted"><fmt:message key="optional"/></small>
                 </div>
                 <div class="form-group">
-                    <input class="form-control" style="background-color: #BABABA" type="text" name="name" pattern="^[\w\- ]{2,35}$" placeholder="<fmt:message key="name"/>" value="${name}">
+                    <input class="form-control" style="background-color: #BABABA" type="text" name="name" pattern="^[\p{L}\s\.\-]{2,35}$" placeholder="<fmt:message key="name"/>" value="${name}">
                     <small class="form-text text-muted"><fmt:message key="optional"/></small>
                 </div>
                 <button class="btn btn-primary btn-block" type="submit"><fmt:message key="register"/></button>

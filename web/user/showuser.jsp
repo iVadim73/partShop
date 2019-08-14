@@ -6,7 +6,7 @@
 <ftm:setBundle basename="text"/>
 <jsp:include page="/common/header.jsp"/>
 <body>
-<ftm:setBundle basename="text"/>
+    <ftm:setBundle basename="text"/>
     <div style="height: 76%; background-image: url(/picture/index.jpg); background-size: cover">
         <div class="container col-4 rounded" style="background-color: #3B3B3B">
             <form method="post" action="/controller">
@@ -18,7 +18,7 @@
                     <fmt:message key="bill"/>: <lt:fractionalNumber number="${bill}"/><br/>
                 </p>
                 <div class="form-group">
-                    <input class="form-control" style="background-color: #BABABA" type="text" name="name"  placeholder="<fmt:message key="name"/>" value="${name}" required>
+                    <input class="form-control" style="background-color: #BABABA" type="text" name="name" pattern="^[\p{L}\s\.\-]{2,35}$"  placeholder="<fmt:message key="name"/>" value="${name}" required>
                     <small class="form-text text-muted">Name</small>
                 </div>
                 <div class="form-group">
@@ -39,7 +39,7 @@
                 </div>
                 <div class="form-group">
                     <input class="form-control" style="background-color: #BABABA" type="text" name="newPassword2" pattern="^[\w\-]{6,18}$" placeholder="<fmt:message key="repeatNewPassword"/>" value="${repeatNewPassword}" required>
-                    <small class="form-text text-muted">You can use only....</small>
+                    <small class="form-text text-muted">You can use only [\w\-]{6,18}</small>
                 </div>
                 <button class="btn btn-primary btn-block" type="submit"><fmt:message key="changePassword"/></button>
                 <br/>

@@ -3,6 +3,7 @@ package by.gvozdovich.partshop.controller.command.order;
 import by.gvozdovich.partshop.controller.command.Command;
 import by.gvozdovich.partshop.controller.command.CommandPathConstant;
 import by.gvozdovich.partshop.controller.command.CommandVarConstant;
+import by.gvozdovich.partshop.controller.command.cart.ShowAllCartCommand;
 import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.*;
 import by.gvozdovich.partshop.model.exception.ServiceException;
@@ -55,26 +56,27 @@ public class AddOrderCommand implements Command {
 
                 CartService.getInstance().buy(cartId, user, part, partCount);
                 request.setAttribute(CommandVarConstant.CONDITION, "card buy completed successfully");
+
+                String userType = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
+                int userId = user.getUserId();
+                String pageToRedirect;
+                page.setRouterType(Router.RouterType.REDIRECT);
+
+                switch (userType) {
+                    case CommandVarConstant.ADMIN:
+                    case CommandVarConstant.SELLER:
+                        pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWALLORDER +"?userId="+userId;
+                        page.setPage(pageToRedirect);
+                        break;
+                    default:
+                        pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWALLORDER_FOR_USER +"?userId="+userId;
+                        page.setPage(pageToRedirect);
+                        break;
+                }
             } else {
                 logger.error("no such money");
                 request.setAttribute(CommandVarConstant.CONDITION, "no such money");
-            }
-
-            String userType = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
-            int userId = user.getUserId();
-            String pageToRedirect;
-            page.setRouterType(Router.RouterType.REDIRECT);
-
-            switch (userType) {
-                case CommandVarConstant.ADMIN:
-                case CommandVarConstant.SELLER:
-                    pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWALLORDER +"?userId="+userId;
-                    page.setPage(pageToRedirect);
-                    break;
-                default:
-                    pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWALLORDER_FOR_USER +"?userId="+userId;
-                    page.setPage(pageToRedirect);
-                    break;
+                page = new ShowAllCartCommand().execute(request);
             }
         } catch (ServiceException e) {
             logger.error("exception in Service layer :" + e);

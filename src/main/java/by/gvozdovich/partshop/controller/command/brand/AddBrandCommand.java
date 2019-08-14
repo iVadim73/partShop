@@ -10,6 +10,7 @@ import by.gvozdovich.partshop.model.service.BrandService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 
 /**
  * add Brand to DB
@@ -33,9 +34,14 @@ public class AddBrandCommand implements Command {
         Router page = new Router();
 
         try {
+            String info= null;
+            try {
+                info = new String(request.getParameter(CommandVarConstant.INFO).getBytes("ISO-8859-1"),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e);
+            }
             String name = request.getParameter(CommandVarConstant.NAME);
             String country = request.getParameter(CommandVarConstant.COUNTRY);
-            String info = request.getParameter(CommandVarConstant.INFO);
             String active = request.getParameter(CommandVarConstant.ACTIVE);
             boolean isActive = active != null;
 

@@ -12,6 +12,7 @@ import by.gvozdovich.partshop.model.service.PartService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 
 /**
@@ -39,7 +40,14 @@ public class AddPartCommand implements Command {
             Brand brand = BrandService.getInstance().takeBrandById(brandId);
 
             String catalogNo = request.getParameter(CommandVarConstant.CATALOG_NO);
-            String info = request.getParameter(CommandVarConstant.INFO);
+
+            String info= null;
+            try {
+                info = new String(request.getParameter(CommandVarConstant.INFO).getBytes("ISO-8859-1"),"UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                logger.error(e);
+            }
+
             String originalCatalogNo = request.getParameter(CommandVarConstant.ORIGINAL_CATALOG_NO);
             String strPrice = request.getParameter(CommandVarConstant.PRICE);
             strPrice = strPrice.replaceAll(",", ".");

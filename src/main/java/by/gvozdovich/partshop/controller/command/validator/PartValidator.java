@@ -7,7 +7,7 @@ package by.gvozdovich.partshop.controller.command.validator;
  */
 public class PartValidator {
     private static final String CATALOG_NO_REGEX = "^[\\w\\-)( ]{2,45}$";
-    private static final String INFO_REGEX = "^.{0,300}$";
+    private static final String INFO_REGEX = "^[\\p{L}\\s\\.\\-]{0,300}$";
     private static final String PRICE_REGEX = "^[\\d]{1,19}(\\.\\d{1,2})?$";
     private static final String WAIT_REGEX = "^\\d{1,3}$";
     private static final String DATA_REGEX = "^[\\w\\-)( ]{1,45}$";

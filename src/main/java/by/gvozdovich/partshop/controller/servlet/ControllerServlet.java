@@ -33,6 +33,7 @@ public class ControllerServlet extends HttpServlet {
         Logger logger = LogManager.getLogger();
         Optional<Command> optionalCommand = CommandFactory.defineCommand(req.getParameter(CommandVarConstant.COMMAND));
         Command command = optionalCommand.orElse(new EmptyCommand());
+//        Command command = optionalCommand.get();
         Router page = command.execute(req);
 
         if(page != null) {

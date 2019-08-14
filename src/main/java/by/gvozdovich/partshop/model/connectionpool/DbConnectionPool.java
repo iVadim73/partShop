@@ -61,7 +61,7 @@ public class DbConnectionPool {
     /**
      * method provides a connection to interact with database
      * @return connection which is ready for statement
-     * @throws InterruptedException if waiting of connection was interrupted
+     * @throws ConnectionPoolException if anything was happen
      */
     public Connection getConnection() throws ConnectionPoolException {
         lock.lock();
@@ -103,12 +103,18 @@ public class DbConnectionPool {
     boolean returnConnection(Connection connection) {
         if(connection != null) {
             usedConnections.remove(connection);
+            try {
+                connection.setAutoCommit(true);
+            } catch (SQLException e) {
+                return true;
+            }
             return connectionPool.add((ProxyConnection) connection);
         }
         return false;
     }
 
     private static ProxyConnection createConnection() throws SQLException {
+        new com.mysql.jdbc.Driver();
         return new ProxyConnection(DriverManager.getConnection(URL, USER, PASSWORD));
     }
 
