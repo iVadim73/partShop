@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.model.entity.Role;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.RoleService;
 import by.gvozdovich.partshop.model.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -30,6 +32,7 @@ public class RegistrationCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -44,6 +47,7 @@ public class RegistrationCommand implements Command {
             UserValidator validator = new UserValidator();
             String valid = validator.registrationValidate(login, password, email, phoneStr, name);
             if (!valid.isEmpty()) {
+                logger.error("wrong data :" + login + " " + password + " " + email + " " + phoneStr + " " + name);
                 request.getSession().setAttribute(CommandVarConstant.LOGIN, login);
                 request.getSession().setAttribute(CommandVarConstant.PASSWORD, password);
                 request.getSession().setAttribute(CommandVarConstant.EMAIL, email);
@@ -73,6 +77,7 @@ public class RegistrationCommand implements Command {
                 }
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

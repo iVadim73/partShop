@@ -10,6 +10,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.User;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -30,6 +32,7 @@ public class SignInCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -40,6 +43,7 @@ public class SignInCommand implements Command {
 
             UserValidator validator = new UserValidator();
             if (!validator.signinValidate(login, password)) {
+                logger.error("wrong data :" + login + " " + password);
                 request.getSession().setAttribute(CommandVarConstant.LOGIN, login);
                 request.getSession().setAttribute(CommandVarConstant.PASSWORD, password);
                 request.setAttribute(CommandVarConstant.CONDITION, "wrong data");
@@ -68,7 +72,7 @@ public class SignInCommand implements Command {
                     } else if (action.equals(CommandVarConstant.ADD_CART)) {
                         page = new AddCartCommand().execute(request);
                     }
-                } else { // FIXME: 2019-08-09 нужен ли елс???
+                } else {
                     page.setPage(CommandPathConstant.PATH_PAGE_INDEX);
                 }
             } else {
@@ -78,6 +82,7 @@ public class SignInCommand implements Command {
                 page.setPage(CommandPathConstant.PATH_PAGE_SIGNIN);
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

@@ -19,7 +19,8 @@
     </Appenders>
     <Loggers>
         <Root level="debug">
-            <AppenderRef ref="fileLogger" level="debug"/>
+            <!--<AppenderRef ref="fileLogger" level="debug"/>-->
+            <AppenderRef ref="fileLogger" level="info"/>
             <AppenderRef ref="console" level="info"/>
         </Root>
     </Loggers>

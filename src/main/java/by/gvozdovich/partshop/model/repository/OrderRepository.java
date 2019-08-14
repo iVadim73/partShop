@@ -10,6 +10,9 @@ import by.gvozdovich.partshop.model.service.ConditionService;
 import by.gvozdovich.partshop.model.service.PartService;
 import by.gvozdovich.partshop.model.service.UserService;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.math.BigDecimal;
 import java.sql.*;
 import java.time.LocalDate;
@@ -23,6 +26,7 @@ import java.util.List;
  * @version 1.0
  */
 public class OrderRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static OrderRepository instance;
     private static final String ORDER_ADD_SQL = "INSERT INTO orders (part_id, user_id, cost, condition_id, part_count, is_active, bill_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
     private static final String ORDER_UPDATE_SQL = "UPDATE orders SET part_id=(?), user_id=(?), cost=(?), condition_id=(?), part_count=(?), is_active=(?), bill_id=(?) WHERE order_id=(?)";
@@ -60,12 +64,14 @@ public class OrderRepository implements DataRepository {
             statement.setBoolean(6, ((Order) dbEntity).getIsActive());
             statement.setInt(7, ((Order) dbEntity).getBill().getBillId());
             statement.execute();
+            logger.debug("order added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add order", e);
         } finally {
             try {
@@ -98,7 +104,9 @@ public class OrderRepository implements DataRepository {
             statement.setInt(7, ((Order) dbEntity).getBill().getBillId());
             statement.setInt(8, ((Order) dbEntity).getOrderId());
             statement.execute();
+            logger.debug("order updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -120,7 +128,9 @@ public class OrderRepository implements DataRepository {
             statement = connection.prepareStatement(ORDER_REMOVE_SQL);
             statement.setInt(1, ((Order) dbEntity).getOrderId());
             statement.execute();
+            logger.debug("order removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -158,6 +168,7 @@ public class OrderRepository implements DataRepository {
                     condition = ConditionService.getInstance().takeConditionById(conditionId);
                     bill = BillService.getInstance().takeBillById(billId);
                 } catch (ServiceException e) {
+                    logger.error("ServiceException :" + e);
                     throw new RepositoryException("take user or part or condition or bill fail", e);
                 }
 
@@ -182,8 +193,10 @@ public class OrderRepository implements DataRepository {
                 orderList.add(order);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -199,6 +212,7 @@ public class OrderRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("order query :" + orderList);
         return orderList;
     }
 
@@ -272,13 +286,15 @@ public class OrderRepository implements DataRepository {
                 statement.execute();
 
                 connection.commit();
+                logger.debug("cart bought :" + cart);
             } catch (SQLException e) {
                 connection.rollback(buySavepoint);
-                // TODO: 2019-07-29 log
+                logger.error("SQLException :" + e);
             }
             connection.setAutoCommit(true);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("SQL error", e);
         } finally {
             try {

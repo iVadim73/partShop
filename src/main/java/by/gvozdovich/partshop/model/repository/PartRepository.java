@@ -9,6 +9,9 @@ import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.service.BrandService;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -23,6 +26,7 @@ import java.util.List;
  * @version 1.0
  */
 public class PartRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static PartRepository instance;
     private static final String ADD_SQL = "INSERT INTO part (catalog_no, original_catalog_no, info, price, wait, brand_id, stock_count, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String UPDATE_SQL = "UPDATE part SET catalog_no=(?), original_catalog_no=(?), info=(?), price=(?), picture=(?), wait=(?), brand_id=(?), stock_count=(?), is_active=(?) WHERE part_id=(?)";
@@ -55,12 +59,14 @@ public class PartRepository implements DataRepository {
             statement.setInt(7, ((Part) dbEntity).getStockCount());
             statement.setBoolean(8, ((Part) dbEntity).getIsActive());
             statement.execute();
+            logger.debug("part added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoBillId = rs.getInt(1);
             return autoBillId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add part", e);
         } finally {
             try {
@@ -95,7 +101,9 @@ public class PartRepository implements DataRepository {
             statement.setBoolean(9, ((Part) dbEntity).getIsActive());
             statement.setInt(10, ((Part) dbEntity).getPartId());
             statement.execute();
+            logger.debug("part updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -117,7 +125,9 @@ public class PartRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((Part) dbEntity).getPartId());
             statement.execute();
+            logger.debug("part removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -146,6 +156,7 @@ public class PartRepository implements DataRepository {
                 try {
                     brand = BrandService.getInstance().takeBrandById(brandId);
                 } catch (ServiceException e) {
+                    logger.error("ServiceException :" + e);
                     throw new RepositoryException("take brand fail", e);
                 }
 
@@ -165,8 +176,10 @@ public class PartRepository implements DataRepository {
                 partList.add(part);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -182,6 +195,7 @@ public class PartRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("part query :" + partList);
         return partList;
     }
 }

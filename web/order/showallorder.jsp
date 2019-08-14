@@ -58,6 +58,7 @@
                     </c:forEach>
                     </tbody>
                 </table>
+                <br/>
             </c:otherwise>
         </c:choose>
     </div>

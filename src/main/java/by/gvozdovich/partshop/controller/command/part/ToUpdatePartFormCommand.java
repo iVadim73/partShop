@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.model.entity.Part;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.BrandService;
 import by.gvozdovich.partshop.model.service.PartService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class ToUpdatePartFormCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -41,6 +44,7 @@ public class ToUpdatePartFormCommand implements Command {
             request.setAttribute(CommandVarConstant.PART, part);
             page.setPage(CommandPathConstant.PATH_PAGE_SHOWPART);
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

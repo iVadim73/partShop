@@ -133,17 +133,20 @@ public class Order implements DbEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Order order = (Order) o;
         return orderId == order.orderId &&
-                user == order.user &&
-                part == order.part &&
-                condition == order.condition &&
+                partCount == order.partCount &&
+                isActive == order.isActive &&
+                Objects.equals(user, order.user) &&
+                Objects.equals(part, order.part) &&
                 Objects.equals(dateOrder, order.dateOrder) &&
                 Objects.equals(dateCondition, order.dateCondition) &&
-                Objects.equals(cost, order.cost);
+                Objects.equals(cost, order.cost) &&
+                Objects.equals(condition, order.condition) &&
+                Objects.equals(bill, order.bill);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orderId, user, part, dateOrder, dateCondition, cost, condition);
+        return Objects.hash(orderId, user, part, dateOrder, dateCondition, cost, condition, partCount, isActive, bill);
     }
 
     @Override
@@ -156,6 +159,9 @@ public class Order implements DbEntity {
                 ", dateCondition=" + dateCondition +
                 ", cost=" + cost +
                 ", condition=" + condition +
+                ", partCount=" + partCount +
+                ", isActive=" + isActive +
+                ", bill=" + bill +
                 '}';
     }
 }

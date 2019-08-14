@@ -47,6 +47,7 @@
                 </c:forEach>
                 </tbody>
             </table>
+            <br/>
             <div class="mx-auto" style="width: 200px;">
                 <lt:pageList pageCount="${pageCount}" elementCount="${orders.size()}" command="show_all_order" login="${login}"/>
             </div>

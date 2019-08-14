@@ -8,6 +8,9 @@ import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.service.PartService;
 import by.gvozdovich.partshop.model.service.UserService;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -20,6 +23,7 @@ import java.util.List;
  * @version 1.0
  */
 public class FeedbackRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static FeedbackRepository instance;
     private static final String ADD_SQL = "INSERT INTO feedback (user_id, part_id, comment, star) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_SQL = "UPDATE feedback SET user_id=(?), part_id=(?), comment=(?), star=(?) WHERE feedback_id=(?)";
@@ -48,12 +52,14 @@ public class FeedbackRepository implements DataRepository {
             statement.setString(3, ((Feedback) dbEntity).getComment());
             statement.setInt(4, ((Feedback) dbEntity).getStar());
             statement.execute();
+            logger.debug("feedback added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add feedback", e);
         } finally {
             try {
@@ -83,7 +89,9 @@ public class FeedbackRepository implements DataRepository {
             statement.setInt(4, ((Feedback) dbEntity).getStar());
             statement.setInt(5, ((Feedback) dbEntity).getFeedbackId());
             statement.execute();
+            logger.debug("feedback updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -105,7 +113,9 @@ public class FeedbackRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((Feedback) dbEntity).getFeedbackId());
             statement.execute();
+            logger.debug("feedback removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -137,6 +147,7 @@ public class FeedbackRepository implements DataRepository {
                     user = UserService.getInstance().takeUserById(userId);
                     part = PartService.getInstance().takePartById(partId);
                 } catch (ServiceException e) {
+                    logger.error("ServiceException :" + e);
                     throw new RepositoryException("take user or part bill info fail", e);
                 }
 
@@ -155,8 +166,10 @@ public class FeedbackRepository implements DataRepository {
                 feedbackList.add(feedback);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -172,6 +185,7 @@ public class FeedbackRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("feedback query :" + feedbackList);
         return feedbackList;
     }
 }

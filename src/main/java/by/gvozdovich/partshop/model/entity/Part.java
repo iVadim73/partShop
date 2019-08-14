@@ -133,18 +133,19 @@ public class Part implements DbEntity {
         Part part = (Part) o;
         return partId == part.partId &&
                 wait == part.wait &&
-                brand == part.brand &&
                 stockCount == part.stockCount &&
+                isActive == part.isActive &&
                 Objects.equals(catalogNo, part.catalogNo) &&
                 Objects.equals(originalCatalogNo, part.originalCatalogNo) &&
                 Objects.equals(info, part.info) &&
                 Objects.equals(price, part.price) &&
-                Objects.equals(pictureUrl, part.pictureUrl);
+                Objects.equals(pictureUrl, part.pictureUrl) &&
+                Objects.equals(brand, part.brand);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(partId, catalogNo, originalCatalogNo, info, price, pictureUrl, wait, brand, stockCount);
+        return Objects.hash(partId, catalogNo, originalCatalogNo, info, price, pictureUrl, wait, brand, stockCount, isActive);
     }
 
     @Override
@@ -155,10 +156,11 @@ public class Part implements DbEntity {
                 ", originalCatalogNo='" + originalCatalogNo + '\'' +
                 ", info='" + info + '\'' +
                 ", price=" + price +
-                ", pictureURL='" + pictureUrl + '\'' +
+                ", pictureUrl='" + pictureUrl + '\'' +
                 ", wait=" + wait +
-                ", brandId=" + brand +
+                ", brand=" + brand +
                 ", stockCount=" + stockCount +
+                ", isActive=" + isActive +
                 '}';
     }
 }

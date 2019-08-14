@@ -49,9 +49,9 @@ public class Role implements DbEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Role role1 = (Role) o;
-        return roleId == role1.roleId &&
-                Objects.equals(type, role1.type);
+        Role role = (Role) o;
+        return roleId == role.roleId &&
+                Objects.equals(type, role.type);
     }
 
     @Override

@@ -21,7 +21,6 @@ import javax.servlet.http.HttpServletRequest;
  * @version 1.0
  */
 public class AddFeedbackCommand implements Command {
-    private static Logger logger = LogManager.getLogger();
 
     public AddFeedbackCommand() {
     }
@@ -33,6 +32,7 @@ public class AddFeedbackCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+    Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -57,13 +57,13 @@ public class AddFeedbackCommand implements Command {
             String userType = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
 
             switch (userType) {
-                case CommandVarConstant.BUYER:
-                    pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART_FOR_USER + "?partId=" + partId;
-                    page.setPage(pageToRedirect);
-                    break;
                 case CommandVarConstant.SELLER:
                 case CommandVarConstant.ADMIN:
                     pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART + "?partId=" + partId;
+                    page.setPage(pageToRedirect);
+                    break;
+                case CommandVarConstant.BUYER:
+                    pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART_FOR_USER + "?partId=" + partId;
                     page.setPage(pageToRedirect);
                     break;
                 default:
@@ -71,6 +71,7 @@ public class AddFeedbackCommand implements Command {
                     break;
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

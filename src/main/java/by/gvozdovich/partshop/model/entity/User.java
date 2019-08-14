@@ -1,5 +1,8 @@
 package by.gvozdovich.partshop.model.entity;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.xml.bind.DatatypeConverter;
 import java.math.BigDecimal;
 import java.security.NoSuchAlgorithmException;
@@ -34,11 +37,13 @@ public class User implements DbEntity {
     }
 
     public static String hashPassword (String password) {
-        MessageDigest md = null;
+        Logger logger = LogManager.getLogger();
+        MessageDigest md;
         try {
             md = MessageDigest.getInstance(MD5);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace(); // FIXME: 2019-07-09 хэш исключение
+            logger.fatal("password hash fail", e);
+            throw new RuntimeException();
         }
         md.update(password.getBytes());
         String md5Pass = DatatypeConverter.printHexBinary(md.digest());

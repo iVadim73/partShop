@@ -6,6 +6,8 @@ import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +22,7 @@ import java.util.List;
  * @version 1.0
  */
 public class BillInfoRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static BillInfoRepository instance;
     private static final String ADD_SQL = "INSERT INTO bill_info (info) VALUES (?)";
     private static final String UPDATE_SQL = "UPDATE bill_info SET info=(?) WHERE bill_info_id=(?)";
@@ -45,13 +48,15 @@ public class BillInfoRepository implements DataRepository {
             statement = connection.prepareStatement(ADD_SQL, PreparedStatement.RETURN_GENERATED_KEYS);
             statement.setString(1, ((BillInfo) dbEntity).getInfo());
             statement.execute();
+            logger.debug("billInfo added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
-            throw new RepositoryException("add info", e);
+            logger.error("SQLException :" + e);
+            throw new RepositoryException("add bill info fail", e);
         } finally {
             try {
                 rs.close();
@@ -74,7 +79,9 @@ public class BillInfoRepository implements DataRepository {
             statement.setString(1, ((BillInfo) dbEntity).getInfo());
             statement.setInt(2, ((BillInfo) dbEntity).getBillInfoId());
             statement.execute();
+            logger.debug("billInfo updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update bill info", e);
         } finally {
             try {
@@ -94,7 +101,9 @@ public class BillInfoRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((BillInfo) dbEntity).getBillInfoId());
             statement.execute();
+            logger.debug("billInfo removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove bill info", e);
         } finally {
             try {
@@ -124,8 +133,10 @@ public class BillInfoRepository implements DataRepository {
                 billInfoList.add(billInfo);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -141,6 +152,7 @@ public class BillInfoRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("billInfo list query :" + billInfoList);
         return billInfoList;
     }
 }

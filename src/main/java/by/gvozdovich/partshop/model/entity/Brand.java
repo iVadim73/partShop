@@ -81,6 +81,7 @@ public class Brand implements DbEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Brand brand = (Brand) o;
         return brandId == brand.brandId &&
+                isActive == brand.isActive &&
                 Objects.equals(name, brand.name) &&
                 Objects.equals(country, brand.country) &&
                 Objects.equals(info, brand.info);
@@ -88,7 +89,7 @@ public class Brand implements DbEntity {
 
     @Override
     public int hashCode() {
-        return Objects.hash(brandId, name, country, info);
+        return Objects.hash(brandId, name, country, info, isActive);
     }
 
     @Override
@@ -98,6 +99,7 @@ public class Brand implements DbEntity {
                 ", name='" + name + '\'' +
                 ", country='" + country + '\'' +
                 ", info='" + info + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Order;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.OrderService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class SearchOrderCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -43,6 +46,7 @@ public class SearchOrderCommand implements Command {
 
             if (!validator.orderIdValidate(strOrderId)) {
                 page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLORDER);
+                logger.error("wrong orderId :" + strOrderId);
             } else {
                 int orderId = Integer.parseInt(strOrderId);
                 try {
@@ -50,11 +54,13 @@ public class SearchOrderCommand implements Command {
                     request.setAttribute(CommandVarConstant.ORDER_ID, orderId);
                     page = new ToUpdateOrderFormCommand().execute(request);
                 } catch (ServiceException e) {
+                    logger.error("Order with id not found:" +  orderId);
                     request.setAttribute(CommandVarConstant.CONDITION, "Order with id:" + orderId + " not found!");
                     page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLORDER);
                 }
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

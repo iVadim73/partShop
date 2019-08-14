@@ -7,6 +7,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Brand;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.BrandService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -26,6 +28,7 @@ public class ActivateDeactivateBrandCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -46,6 +49,7 @@ public class ActivateDeactivateBrandCommand implements Command {
             page.setRouterType(Router.RouterType.REDIRECT);
             page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLBRAND);
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

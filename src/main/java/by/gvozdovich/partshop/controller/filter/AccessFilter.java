@@ -89,7 +89,7 @@ public class AccessFilter implements Filter {
         String command = req.getParameter(CommandVarConstant.COMMAND);
         switch (userType) {
             case CommandVarConstant.GUEST :
-                if (WHITE_PATHS_FOR_GUEST.contains(path)) { // TODO: 2019-08-03 нужно ли объединять if и else if в один??? 
+                if (WHITE_PATHS_FOR_GUEST.contains(path)) {
                     chain.doFilter(req, resp);
                 } else if (CommandPathConstant.PATH_PAGE_CONTROLLER.equals(path) && WHITE_COMMAND_FOR_GUEST.contains(command)) {
                     chain.doFilter(req, resp);

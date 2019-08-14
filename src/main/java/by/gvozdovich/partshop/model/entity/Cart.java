@@ -70,9 +70,9 @@ public class Cart implements DbEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Cart cart = (Cart) o;
         return cartId == cart.cartId &&
-                user == cart.user &&
-                part == cart.part &&
-                count == cart.count;
+                count == cart.count &&
+                Objects.equals(user, cart.user) &&
+                Objects.equals(part, cart.part);
     }
 
     @Override

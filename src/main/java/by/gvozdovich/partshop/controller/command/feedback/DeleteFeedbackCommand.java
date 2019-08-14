@@ -7,6 +7,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Feedback;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.FeedbackService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -26,6 +28,7 @@ public class DeleteFeedbackCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -39,21 +42,12 @@ public class DeleteFeedbackCommand implements Command {
             String pageToRedirect;
             String userType = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
 
-            switch (userType) {
-                case CommandVarConstant.SELLER:
-                case CommandVarConstant.ADMIN:
-                    pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART + "?partId=" + partId;
-                    page.setPage(pageToRedirect);
-                    break;
-                case CommandVarConstant.BUYER:
-                    pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART_FOR_USER + "?partId=" + partId;
-                    page.setPage(pageToRedirect);
-                    break;
-                default:
-                    page = goError(request, "access fail");
-                    break;
+            if (CommandVarConstant.ADMIN.equals(userType) || CommandVarConstant.SELLER.equals(userType)) {
+                pageToRedirect = CommandPathConstant.PATH_PAGE_SHOWPART + "?partId=" + partId;
+                page.setPage(pageToRedirect);
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

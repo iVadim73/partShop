@@ -92,9 +92,9 @@ public class Feedback implements DbEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Feedback feedback = (Feedback) o;
         return feedbackId == feedback.feedbackId &&
-                user == feedback.user &&
-                part == feedback.part &&
                 star == feedback.star &&
+                Objects.equals(user, feedback.user) &&
+                Objects.equals(part, feedback.part) &&
                 Objects.equals(date, feedback.date) &&
                 Objects.equals(comment, feedback.comment);
     }

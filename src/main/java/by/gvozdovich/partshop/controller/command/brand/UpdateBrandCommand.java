@@ -7,6 +7,9 @@ import by.gvozdovich.partshop.controller.command.validator.BrandValidator;
 import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.BrandService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -26,6 +29,7 @@ public class UpdateBrandCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -38,6 +42,7 @@ public class UpdateBrandCommand implements Command {
             BrandValidator validator = new BrandValidator();
             if (!validator.brandValidate(name, country, info)) {
                 page = goError(request, "wrong data");
+                logger.warn("wrong data :" + name + " " + country + " " + info);
             } else {
                 if (BrandService.getInstance().update(brandId, name, country, info, isActive)) {
                     request.setAttribute(CommandVarConstant.CONDITION, "brand updated successfully");
@@ -48,6 +53,7 @@ public class UpdateBrandCommand implements Command {
             }
         } catch (ServiceException e) {
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
+            logger.error("exception in Service layer :" + e);
         }
 
         return page;

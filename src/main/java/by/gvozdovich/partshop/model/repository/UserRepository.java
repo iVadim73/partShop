@@ -7,6 +7,9 @@ import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.service.RoleService;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,6 +22,7 @@ import java.util.List;
  * @version 1.0
  */
 public class UserRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static UserRepository instance;
     private static final String USER_ADD_SQL = "INSERT INTO user (login, password, email, phone, name, discount, star, comment, bill, role_id, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private static final String USER_UPDATE_SQL = "UPDATE user SET login=(?), password=(?), email=(?), phone=(?), name=(?), discount=(?), star=(?), comment=(?), bill=(?), role_id=(?), is_active=(?) WHERE user_id=(?)";
@@ -54,12 +58,14 @@ public class UserRepository implements DataRepository {
             statement.setInt(10, ((User) dbEntity).getRole().getRoleId());
             statement.setBoolean(11,((User) dbEntity).getIsActive());
             statement.execute();
+            logger.debug("user added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add user", e);
         } finally {
             try {
@@ -96,7 +102,9 @@ public class UserRepository implements DataRepository {
             statement.setBoolean(11,((User) dbEntity).getIsActive());
             statement.setInt(12, ((User) dbEntity).getUserId());
             statement.execute();
+            logger.debug("user updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -118,7 +126,9 @@ public class UserRepository implements DataRepository {
             statement = connection.prepareStatement(USER_REMOVE_SQL);
             statement.setInt(1, ((User) dbEntity).getUserId());
             statement.execute();
+            logger.debug("user removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -147,6 +157,7 @@ public class UserRepository implements DataRepository {
                 try {
                     role = RoleService.getInstance().takeRoleById(roleId);
                 } catch (ServiceException e) {
+                    logger.error("ServiceException :" + e);
                     throw new RepositoryException("take role fail", e);
                 }
                 LocalDate registrationDate = Timestamp.valueOf(resultSet.getString(ServiceConstant.REGISTRATION_DATE))
@@ -171,8 +182,10 @@ public class UserRepository implements DataRepository {
                 userList.add(user);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -188,6 +201,7 @@ public class UserRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("user query :" + userList);
         return userList;
     }
 }

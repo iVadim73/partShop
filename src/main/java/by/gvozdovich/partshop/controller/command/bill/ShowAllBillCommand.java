@@ -8,6 +8,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Bill;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.BillService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -28,6 +30,8 @@ public class ShowAllBillCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
+
         Router page = new Router();
 
         try {
@@ -37,6 +41,7 @@ public class ShowAllBillCommand implements Command {
             page = new TagCommand().execute(request);
             page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLBILL);
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

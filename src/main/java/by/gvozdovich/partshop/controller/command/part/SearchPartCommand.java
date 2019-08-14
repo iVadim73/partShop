@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.Part;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.PartService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -29,6 +31,7 @@ public class SearchPartCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -43,7 +46,7 @@ public class SearchPartCommand implements Command {
                 page = new ShowAllPartCommand().execute(request);
             } else if (!validator.dataValidate(data)) {
                 page = goError(request, "wrong data");
-
+                logger.error("wrong data :" + data);
             } else {
                 switch (type) {
                     case CommandVarConstant.ADMIN:
@@ -60,6 +63,7 @@ public class SearchPartCommand implements Command {
                 request.setAttribute(CommandVarConstant.PART_OF_CATALOG_NO, data);
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

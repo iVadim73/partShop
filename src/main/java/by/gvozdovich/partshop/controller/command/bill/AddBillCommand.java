@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.model.entity.BillInfo;
 import by.gvozdovich.partshop.model.entity.User;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 
@@ -31,6 +33,7 @@ public class AddBillCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
         try {
             String strSum = request.getParameter(CommandVarConstant.SUM);
@@ -38,6 +41,7 @@ public class AddBillCommand implements Command {
 
             BillValidator validator = new BillValidator();
             if (!validator.sumValidate(strSum)) {
+                logger.warn("wrong sum :" + strSum);
                 page = goError(request, "wrong sum");
             } else {
                 BigDecimal sum = new BigDecimal(strSum);
@@ -82,6 +86,7 @@ public class AddBillCommand implements Command {
                 }
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page = goError(request, "get user or bill info fail");
         }
 

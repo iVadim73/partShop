@@ -1,6 +1,8 @@
 package by.gvozdovich.partshop.model.connectionpool;
 
 import by.gvozdovich.partshop.model.exception.ConnectionPoolException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
@@ -12,6 +14,7 @@ import java.util.concurrent.Executor;
  * @version 1.0
  */
 class ProxyConnection implements Connection {
+    private static Logger logger = LogManager.getLogger();
     private Connection connection;
 
     ProxyConnection(Connection connection) {
@@ -26,7 +29,7 @@ class ProxyConnection implements Connection {
         try {
             DbConnectionPool.getInstance().returnConnection(this);
         } catch (ConnectionPoolException e) {
-            // FIXME: 2019-07-19 нельзя пробробросить исключение
+            logger.error("exception in Service layer :" + e);
         }
     }
 
@@ -294,6 +297,4 @@ class ProxyConnection implements Connection {
     public void rollback() throws SQLException {
         connection.rollback();
     }
-
-
 }

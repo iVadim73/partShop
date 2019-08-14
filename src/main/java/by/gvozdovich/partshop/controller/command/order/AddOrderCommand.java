@@ -18,7 +18,6 @@ import java.math.BigDecimal;
  * @version 1.0
  */
 public class AddOrderCommand implements Command {
-    private static Logger logger = LogManager.getLogger();
 
     public AddOrderCommand() {
     }
@@ -30,6 +29,7 @@ public class AddOrderCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -56,6 +56,7 @@ public class AddOrderCommand implements Command {
                 CartService.getInstance().buy(cartId, user, part, partCount);
                 request.setAttribute(CommandVarConstant.CONDITION, "card buy completed successfully");
             } else {
+                logger.error("no such money");
                 request.setAttribute(CommandVarConstant.CONDITION, "no such money");
             }
 
@@ -76,6 +77,7 @@ public class AddOrderCommand implements Command {
                     break;
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

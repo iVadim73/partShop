@@ -83,14 +83,15 @@ public class Bill implements DbEntity {
         if (o == null || getClass() != o.getClass()) return false;
         Bill bill = (Bill) o;
         return billId == bill.billId &&
-                user == bill.user &&
-                billInfo == bill.billInfo &&
-                Objects.equals(sum, bill.sum);
+                Objects.equals(user, bill.user) &&
+                Objects.equals(sum, bill.sum) &&
+                Objects.equals(billInfo, bill.billInfo) &&
+                Objects.equals(date, bill.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(billId, user, sum, billInfo);
+        return Objects.hash(billId, user, sum, billInfo, date);
     }
 
     @Override
@@ -100,6 +101,7 @@ public class Bill implements DbEntity {
                 ", user=" + user +
                 ", sum=" + sum +
                 ", billInfo=" + billInfo +
+                ", date=" + date +
                 '}';
     }
 }

@@ -37,6 +37,7 @@ public class FileLoadServlet  extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        Logger logger = LogManager.getLogger();
         response.setContentType("text/html;charset=UTF-8");
         Part part = request.getPart("file");
         if (part != null && part.getSize() > 0) {

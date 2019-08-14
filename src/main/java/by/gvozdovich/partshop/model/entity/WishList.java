@@ -61,8 +61,8 @@ public class WishList implements DbEntity {
         if (o == null || getClass() != o.getClass()) return false;
         WishList wishList = (WishList) o;
         return wishListId == wishList.wishListId &&
-                user == wishList.user &&
-                part == wishList.part;
+                Objects.equals(user, wishList.user) &&
+                Objects.equals(part, wishList.part);
     }
 
     @Override

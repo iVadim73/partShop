@@ -46,7 +46,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${brands}" var="brand">
+                        <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${brands}" var="brand">
                         <tr>
                             <td>${brand.name}</td>
                             <td>${brand.country}</td>
@@ -56,7 +56,7 @@
                                 <form method="post" action="/controller">
                                     <input type="hidden" name="command" value="to_update_brand_form"/>
                                     <input type="hidden" name="brandId" value="${brand.brandId}"/>
-                                    <button type="submit"><fmt:message key="update"/></button>
+                                    <button type="submit"><fmt:message key="change"/></button>
                                 </form>
                             </td>
                             <td>
@@ -70,9 +70,7 @@
                     </c:forEach>
                     </tbody>
                 </table>
-                <%--<div class="mx-auto" style="width: 200px;">--%>
-                    <%--<lt:pageList pageCount="${pageCount}" elementCount="${brands.size()}" command="show_all_brand"/>--%>
-                <%--</div>--%>
+                <br/>
             </c:otherwise>
         </c:choose>
     </div>

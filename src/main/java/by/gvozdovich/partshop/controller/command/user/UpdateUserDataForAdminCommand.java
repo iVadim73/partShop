@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.model.entity.Role;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.RoleService;
 import by.gvozdovich.partshop.model.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -28,6 +30,7 @@ public class UpdateUserDataForAdminCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -41,6 +44,8 @@ public class UpdateUserDataForAdminCommand implements Command {
             UserValidator validator = new UserValidator();
             if (!validator.updateValidateForAdmin(strPhone, name, strDiscount, strStar, strRoleId, comment)) {
                 page = goError(request, "wrong data");
+                logger.error("wrong data :" + strPhone + " " + name + " " + strDiscount + " " + strStar + " "
+                        + strRoleId + " " + comment);
             } else {
                 int userId = Integer.parseInt(request.getParameter(CommandVarConstant.USER_ID));
                 double discount = Double.valueOf(strDiscount);
@@ -60,6 +65,7 @@ public class UpdateUserDataForAdminCommand implements Command {
                 page = new ShowUserForSellerAndAdminCommand().execute(request);
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

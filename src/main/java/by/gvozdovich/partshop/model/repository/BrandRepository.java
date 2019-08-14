@@ -6,6 +6,9 @@ import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +23,7 @@ import java.util.List;
  * @version 1.0
  */
 public class BrandRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static BrandRepository instance;
     private static final String ADD_SQL = "INSERT INTO brand (name, country, info, is_active) VALUES (?, ?, ?, ?)";
     private static final String UPDATE_SQL = "UPDATE brand SET name=(?), country=(?), info=(?), is_active=(?) WHERE brand_id=(?)";
@@ -48,14 +52,20 @@ public class BrandRepository implements DataRepository {
             statement.setString(3, ((Brand) dbEntity).getInfo());
             statement.setBoolean(4, ((Brand) dbEntity).getIsActive());
             statement.execute();
+            logger.debug("brand added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add brand", e);
         } finally {
+            try {
+                rs.close();
+            } catch (Exception e) {
+            }
             try {
                 statement.close();
             } catch (Exception e) {
@@ -79,7 +89,9 @@ public class BrandRepository implements DataRepository {
             statement.setBoolean(4, ((Brand) dbEntity).getIsActive());
             statement.setInt(5, ((Brand) dbEntity).getBrandId());
             statement.execute();
+            logger.debug("brand updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -101,7 +113,9 @@ public class BrandRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((Brand) dbEntity).getBrandId());
             statement.execute();
+            logger.debug("brand removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -136,8 +150,10 @@ public class BrandRepository implements DataRepository {
                 brandList.add(brand);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -153,6 +169,7 @@ public class BrandRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("brand query :" + brandList);
         return brandList;
     }
 }

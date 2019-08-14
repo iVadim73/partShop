@@ -1,6 +1,8 @@
 package by.gvozdovich.partshop.controller.servlet;
 
 import by.gvozdovich.partshop.controller.command.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -28,6 +30,7 @@ public class ControllerServlet extends HttpServlet {
     }
 
     private void processRequest(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Logger logger = LogManager.getLogger();
         Optional<Command> optionalCommand = CommandFactory.defineCommand(req.getParameter(CommandVarConstant.COMMAND));
         Command command = optionalCommand.orElse(new EmptyCommand());
         Router page = command.execute(req);
@@ -40,6 +43,7 @@ public class ControllerServlet extends HttpServlet {
                 requestDispatcher.forward(req, resp);
             }
         } else {
+            logger.error("page is null");
             page.setPage(CommandPathConstant.PATH_PAGE_INDEX);
             resp.sendRedirect(page.getPage());
         }

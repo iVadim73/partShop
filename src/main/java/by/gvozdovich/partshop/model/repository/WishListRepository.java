@@ -8,6 +8,8 @@ import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.service.PartService;
 import by.gvozdovich.partshop.model.service.UserService;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +24,7 @@ import java.util.List;
  * @version 1.0
  */
 public class WishListRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static WishListRepository instance;
     private static final String ADD_SQL = "INSERT INTO wish_list (user_id, part_id) VALUES (?, ?)";
     private static final String UPDATE_SQL = "UPDATE wish_list SET user_id=(?), part_id=(?) WHERE wish_list_id=(?)";
@@ -48,12 +51,14 @@ public class WishListRepository implements DataRepository {
             statement.setInt(1, ((WishList) dbEntity).getUser().getUserId());
             statement.setInt(2, ((WishList) dbEntity).getPart().getPartId());
             statement.execute();
+            logger.debug("wishList added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add wishList", e);
         } finally {
             try {
@@ -81,7 +86,9 @@ public class WishListRepository implements DataRepository {
             statement.setInt(2, ((WishList) dbEntity).getPart().getPartId());
             statement.setInt(3, ((WishList) dbEntity).getWishListId());
             statement.execute();
+            logger.debug("wishList updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -103,7 +110,9 @@ public class WishListRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((WishList) dbEntity).getWishListId());
             statement.execute();
+            logger.debug("wishList removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -135,6 +144,7 @@ public class WishListRepository implements DataRepository {
                     user = UserService.getInstance().takeUserById(userId);
                     part = PartService.getInstance().takePartById(partId);
                 } catch (ServiceException e) {
+                    logger.error("ServiceException :" + e);
                     throw new RepositoryException("take user or part fail", e);
                 }
 
@@ -147,8 +157,10 @@ public class WishListRepository implements DataRepository {
                 wishListList.add(wishList);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -164,6 +176,7 @@ public class WishListRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("wishList query :" + wishListList);
         return wishListList;
     }
 }

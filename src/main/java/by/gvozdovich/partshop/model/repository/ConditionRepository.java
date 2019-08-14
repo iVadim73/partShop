@@ -6,6 +6,9 @@ import by.gvozdovich.partshop.model.entity.DbEntity;
 import by.gvozdovich.partshop.model.exception.RepositoryException;
 import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +23,7 @@ import java.util.List;
  * @version 1.0
  */
 public class ConditionRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static ConditionRepository instance;
     private static final String ADD_SQL = "INSERT INTO conditions (name, info) VALUES (?, ?)";
     private static final String UPDATE_SQL = "UPDATE conditions SET name=(?), info=(?) WHERE condition_id=(?)";
@@ -46,12 +50,14 @@ public class ConditionRepository implements DataRepository {
             statement.setString(1, ((Condition) dbEntity).getName());
             statement.setString(2, ((Condition) dbEntity).getInfo());
             statement.execute();
+            logger.debug("condition added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add condition", e);
         } finally {
             try {
@@ -79,7 +85,9 @@ public class ConditionRepository implements DataRepository {
             statement.setString(2, ((Condition) dbEntity).getInfo());
             statement.setInt(3, ((Condition) dbEntity).getConditionId());
             statement.execute();
+            logger.debug("condition updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update condition", e);
         } finally {
             try {
@@ -101,7 +109,9 @@ public class ConditionRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((Condition) dbEntity).getConditionId());
             statement.execute();
+            logger.debug("condition removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove condition", e);
         } finally {
             try {
@@ -133,8 +143,10 @@ public class ConditionRepository implements DataRepository {
                 conditionList.add(condition);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -150,6 +162,7 @@ public class ConditionRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("condition query :" + conditionList);
         return conditionList;
     }
 }

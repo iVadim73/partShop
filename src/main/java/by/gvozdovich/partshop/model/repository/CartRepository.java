@@ -8,6 +8,8 @@ import by.gvozdovich.partshop.model.exception.SpecificationException;
 import by.gvozdovich.partshop.model.service.PartService;
 import by.gvozdovich.partshop.model.service.UserService;
 import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -22,6 +24,7 @@ import java.util.List;
  * @version 1.0
  */
 public class CartRepository implements DataRepository {
+    private static Logger logger = LogManager.getLogger();
     private static CartRepository instance;
     private static final String ADD_SQL = "INSERT INTO cart (user_id, part_id, count) VALUES (?, ?, ?)";
     private static final String UPDATE_SQL = "UPDATE cart SET user_id=(?), part_id=(?), count=(?) WHERE cart_id=(?)";
@@ -49,12 +52,14 @@ public class CartRepository implements DataRepository {
             statement.setInt(2, ((Cart) dbEntity).getPart().getPartId());
             statement.setInt(3, ((Cart) dbEntity).getCount());
             statement.execute();
+            logger.debug("cart added :" + dbEntity);
 
             rs = statement.getGeneratedKeys();
             rs.next();
             int autoId = rs.getInt(1);
             return autoId;
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("add cart", e);
         } finally {
             try {
@@ -83,7 +88,9 @@ public class CartRepository implements DataRepository {
             statement.setInt(3, ((Cart) dbEntity).getCount());
             statement.setInt(4, ((Cart) dbEntity).getCartId());
             statement.execute();
+            logger.debug("cart updated :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("update", e);
         } finally {
             try {
@@ -105,7 +112,9 @@ public class CartRepository implements DataRepository {
             statement = connection.prepareStatement(REMOVE_SQL);
             statement.setInt(1, ((Cart) dbEntity).getCartId());
             statement.execute();
+            logger.debug("cart removed :" + dbEntity);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("remove", e);
         } finally {
             try {
@@ -137,6 +146,7 @@ public class CartRepository implements DataRepository {
                     user = UserService.getInstance().takeUserById(userId);
                     part = PartService.getInstance().takePartById(partId);
                 } catch (ServiceException e) {
+                    logger.error("ServiceException :" + e);
                     throw new RepositoryException("take user or part fail", e);
                 }
 
@@ -150,8 +160,10 @@ public class CartRepository implements DataRepository {
                 cartList.add(cart);
             }
         } catch (SpecificationException e) {
+            logger.error("SpecificationException :" + e);
             throw new RepositoryException("Repository statement fail", e);
         } catch (SQLException e) {
+            logger.error("SQLException :" + e);
             throw new RepositoryException("Repository execute fail", e);
         } finally {
             try {
@@ -167,6 +179,7 @@ public class CartRepository implements DataRepository {
             } catch (Exception e) {
             }
         }
+        logger.debug("cart query :" + cartList);
         return cartList;
     }
 }

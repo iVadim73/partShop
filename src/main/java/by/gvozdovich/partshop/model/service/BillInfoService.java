@@ -45,7 +45,7 @@ public class BillInfoService implements Service {
                     .withInfo(info)
                     .build();
             try {
-                shopDataRepository.addDBEntity(billInfo);
+                int billId = shopDataRepository.addDBEntity(billInfo);
             } catch (RepositoryException e) {
                 throw new ServiceException("bill info add fail", e);
             }

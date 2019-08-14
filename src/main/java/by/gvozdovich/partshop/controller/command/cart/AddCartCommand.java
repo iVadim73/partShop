@@ -14,6 +14,8 @@ import by.gvozdovich.partshop.model.service.CartService;
 import by.gvozdovich.partshop.model.service.PartService;
 import by.gvozdovich.partshop.model.service.UserService;
 import by.gvozdovich.partshop.model.service.WishListService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -34,6 +36,7 @@ public class AddCartCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -49,6 +52,7 @@ public class AddCartCommand implements Command {
                 String strCount = request.getParameter(CommandVarConstant.COUNT);
                 CartValidator validator = new CartValidator();
                 if (!(validator.countValidate(strCount))) {
+                    logger.error("wrong count :" + strCount);
                     return goError(request, "wrong data");
                 }
                 count = Integer.valueOf(strCount);
@@ -88,6 +92,7 @@ public class AddCartCommand implements Command {
                 page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLCART);
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

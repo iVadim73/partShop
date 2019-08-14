@@ -8,6 +8,8 @@ import by.gvozdovich.partshop.controller.servlet.Router;
 import by.gvozdovich.partshop.model.entity.User;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.UserService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -27,6 +29,7 @@ public class UpdatePasswordCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -37,6 +40,7 @@ public class UpdatePasswordCommand implements Command {
             UserValidator validator = new UserValidator();
             if (!(validator.passwordValidate(oldPassword) && validator.passwordValidate(newPassword1) && validator.passwordValidate(newPassword2))) {
                 page = goError(request, "wrong data");
+                logger.error("wrong data :" + oldPassword + " " + newPassword1 + " " + newPassword2);
             } else {
                 String currentLogin = (String) request.getSession().getAttribute(CommandVarConstant.CURRENT_LOGIN);
                 if (currentLogin == null) {
@@ -60,6 +64,7 @@ public class UpdatePasswordCommand implements Command {
                 }
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

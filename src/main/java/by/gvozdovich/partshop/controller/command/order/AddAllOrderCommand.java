@@ -23,7 +23,6 @@ import java.util.List;
  * @version 1.0
  */
 public class AddAllOrderCommand implements Command {
-    private static Logger logger = LogManager.getLogger();
 
     public AddAllOrderCommand() {
     }
@@ -35,12 +34,14 @@ public class AddAllOrderCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
             String currentLogin = (String) request.getSession().getAttribute(CommandVarConstant.CURRENT_LOGIN);
 
             if (currentLogin == null) {
+                logger.error("login is null");
                 page = goError(request, "You have to sign in!");
             } else {
                 List<Cart> carts = CartService.getInstance().takeCartByUserLogin(currentLogin);
@@ -64,15 +65,11 @@ public class AddAllOrderCommand implements Command {
                         int cartId = cart.getCartId();
                         Part part = cart.getPart();
                         int partCount = cart.getCount();
-                        boolean result = true;
 
                         if (!CartService.getInstance().buy(cartId, user, part, partCount)) {
-                            result = false;
-                        }
-
-                        if (result) {
                             request.setAttribute(CommandVarConstant.CONDITION, "card buy completed successfully");
                         } else {
+                            logger.error("buy fail :" + cartId + " " + user + " " + part + " " + partCount);
                             request.setAttribute(CommandVarConstant.CONDITION, "cart buy fail");
                         }
                     }
@@ -98,6 +95,7 @@ public class AddAllOrderCommand implements Command {
                 }
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 

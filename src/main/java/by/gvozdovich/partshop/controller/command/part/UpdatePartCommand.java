@@ -9,6 +9,8 @@ import by.gvozdovich.partshop.model.entity.Brand;
 import by.gvozdovich.partshop.model.exception.ServiceException;
 import by.gvozdovich.partshop.model.service.BrandService;
 import by.gvozdovich.partshop.model.service.PartService;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 
@@ -29,6 +31,7 @@ public class UpdatePartCommand implements Command {
      */
     @Override
     public Router execute(HttpServletRequest request) {
+        Logger logger = LogManager.getLogger();
         Router page = new Router();
 
         try {
@@ -49,6 +52,8 @@ public class UpdatePartCommand implements Command {
 
             PartValidator validator = new PartValidator();
             if (!validator.partValidate(catalogNo, originalCatalogNo, info, strPrice, strWait, strStockCount)) {
+                logger.error("wrong data :" + catalogNo + " " + originalCatalogNo + " " + info + " " + strPrice
+                        + " " + strWait + " " + strStockCount);
                 page = goError(request, "wrong data");
             } else {
                 BigDecimal price = new BigDecimal(strPrice);
@@ -65,6 +70,7 @@ public class UpdatePartCommand implements Command {
                 page = new ShowPartCommand().execute(request);
             }
         } catch (ServiceException e) {
+            logger.error("exception in Service layer :" + e);
             page.setPage(CommandPathConstant.PATH_PAGE_ERROR);
         }
 
