@@ -36,12 +36,13 @@ public class SearchOrderCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String strOrderId = request.getParameter(CommandVarConstant.ORDER_ID);
             OrderValidator validator = new OrderValidator();
 
-            page = new TagCommand().execute(request);
-
-            List<Order> orderList = OrderService.getInstance().takeAllOrder();
+            List<Order> orderList = OrderService.getInstance().takeAllOrder(pageCount);
             request.setAttribute(CommandVarConstant.ORDERS, orderList);
 
             if (!validator.orderIdValidate(strOrderId)) {

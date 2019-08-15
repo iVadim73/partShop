@@ -46,7 +46,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${users}" var="user">
+                    <c:forEach begin="0" end="9" items="${users}" var="user">
                         <tr>
                             <td>${user.login}</td>
                             <td>${user.email}</td>

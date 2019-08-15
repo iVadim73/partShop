@@ -146,6 +146,16 @@ public class PartService implements Service {
         return true;
     }
 
+    public List<Part> takeAllPartLimit(int pageCount) throws ServiceException {
+        DbEntitySpecification specification = new PartAllLimitSpecification(pageCount);
+        return takePart(specification);
+    }
+
+    public List<Part> takeAllPartLimitForUser(int pageCount) throws ServiceException {
+        DbEntitySpecification specification = new PartAllLimitSpecificationForUser(pageCount);
+        return takePart(specification);
+    }
+
     public List<Part> takeAllPart() throws ServiceException {
         DbEntitySpecification specification = new PartAllSpecification();
         return takePart(specification);

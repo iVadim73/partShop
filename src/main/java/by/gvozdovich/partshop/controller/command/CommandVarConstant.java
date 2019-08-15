@@ -52,6 +52,7 @@ public class CommandVarConstant {
     public static final String WISH_LISTS = "wishLists";
     public static final String PAGE_COUNT = "pageCount";
     public static final String NEXT_PAGE = "nextPage";
+    public static final String NEXT_PAGE_AVAILABLE = "nextPageAvailable";
     public static final String ROLE = "role";
     public static final String USER_ID = "userId";
     public static final String ADMIN = "admin";

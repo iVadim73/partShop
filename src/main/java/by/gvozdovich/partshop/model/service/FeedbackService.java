@@ -9,6 +9,7 @@ import by.gvozdovich.partshop.model.specification.DbEntitySpecification;
 import by.gvozdovich.partshop.model.specification.feedback.FeedbackAllSpecification;
 import by.gvozdovich.partshop.model.specification.feedback.FeedbackSpecificationById;
 import by.gvozdovich.partshop.model.specification.feedback.FeedbackSpecificationByPartId;
+import by.gvozdovich.partshop.model.specification.feedback.FeedbackSpecificationByPartIdLimit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import java.time.LocalDate;
@@ -97,6 +98,11 @@ public class FeedbackService implements Service {
             throw new ServiceException("wrong feedbackId :" + feedbackId);
         }
         return feedbackList.get(0);
+    }
+
+    public List<Feedback> takeAllFeedbackByPartIdLimit(int partId, int pageCount) throws ServiceException {
+        DbEntitySpecification specification = new FeedbackSpecificationByPartIdLimit(partId, pageCount);
+        return takeFeedback(specification);
     }
 
     public List<Feedback> takeAllFeedbackByPartId(int partId) throws ServiceException {

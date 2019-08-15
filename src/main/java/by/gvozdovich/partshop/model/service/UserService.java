@@ -201,13 +201,13 @@ public class UserService implements Service {
         return true;
     }
 
-    public List<User> takeAllUser() throws ServiceException {
-        DbEntitySpecification specification = new UserAllSpecification();
+    public List<User> takeAllUser(int page) throws ServiceException {
+        DbEntitySpecification specification = new UserAllSpecification(page);
         return takeUser(specification);
     }
 
-    public List<User> takeAllUserForSeller() throws ServiceException {
-        DbEntitySpecification specification = new UserAllForSellerSpecification();
+    public List<User> takeAllUserForSeller(int page) throws ServiceException {
+        DbEntitySpecification specification = new UserAllForSellerSpecification(page);
         return takeUser(specification);
     }
 

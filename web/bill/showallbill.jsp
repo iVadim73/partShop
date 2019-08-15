@@ -29,7 +29,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${bills}" var="bill">
+                        <c:forEach begin="0" end="9" items="${bills}" var="bill">
                             <tr>
                                 <td><lt:fractionalNumber number="${bill.sum}"/></td>
                                 <td>${bill.billInfo.info}</td>

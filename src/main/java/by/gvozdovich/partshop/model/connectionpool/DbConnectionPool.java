@@ -114,7 +114,7 @@ public class DbConnectionPool {
     }
 
     private static ProxyConnection createConnection() throws SQLException {
-        new com.mysql.jdbc.Driver();
+        new com.mysql.cj.jdbc.Driver();
         return new ProxyConnection(DriverManager.getConnection(URL, USER, PASSWORD));
     }
 

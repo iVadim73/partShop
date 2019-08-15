@@ -74,14 +74,14 @@ public class BillService implements Service {
 //        return true;
 //    }
 
-    public List<Bill> takeAllBill() throws ServiceException {
-        DbEntitySpecification specification = new BillAllSpecification();
+    public List<Bill> takeAllBill(int pageCount) throws ServiceException {
+        DbEntitySpecification specification = new BillAllSpecification(pageCount);
         return takeBill(specification);
     }
 
-    public List<Bill> takeBillByUserLogin(String login) throws ServiceException {
+    public List<Bill> takeBillByUserLogin(String login, int pageCount) throws ServiceException {
         User user = UserService.getInstance().takeUserByLogin(login);
-        DbEntitySpecification specification = new BillSpecificationByUserId(user.getUserId());
+        DbEntitySpecification specification = new BillSpecificationByUserId(user.getUserId(), pageCount);
         return takeBill(specification);
     }
 

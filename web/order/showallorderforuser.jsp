@@ -22,21 +22,21 @@
                         </div>
                     </caption>
                     <thead>
-                    <tr class="table-info">
-                        <th scope="col"><fmt:message key="id"/></th>
-                        <th scope="col"><fmt:message key="dateOrder"/></th>
-                        <th scope="col"><fmt:message key="catalogNo"/></th>
-                        <th scope="col"><fmt:message key="brandName"/></th>
-                        <th scope="col"><fmt:message key="price"/></th>
-                        <th scope="col"><fmt:message key="partCount"/></th>
-                        <th scope="col"><fmt:message key="cost"/></th>
-                        <th scope="col"><fmt:message key="dateCondition"/></th>
-                        <th scope="col"><fmt:message key="conditionInfo"/></th>
-                        <th scope="col" colspan="2"></th>
-                    </tr>
+                        <tr class="table-info">
+                            <th scope="col"><fmt:message key="id"/></th>
+                            <th scope="col"><fmt:message key="dateOrder"/></th>
+                            <th scope="col"><fmt:message key="catalogNo"/></th>
+                            <th scope="col"><fmt:message key="brandName"/></th>
+                            <th scope="col"><fmt:message key="price"/></th>
+                            <th scope="col"><fmt:message key="partCount"/></th>
+                            <th scope="col"><fmt:message key="cost"/></th>
+                            <th scope="col"><fmt:message key="dateCondition"/></th>
+                            <th scope="col"><fmt:message key="conditionInfo"/></th>
+                            <th scope="col" colspan="2"></th>
+                        </tr>
                     </thead>
                     <tbody>
-                    <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${orders}" var="order">
+                    <c:forEach begin="0" end="9" items="${orders}" var="order">
                         <tr>
                             <td>${order.orderId}</td>
                             <td>${order.dateOrder}</td>

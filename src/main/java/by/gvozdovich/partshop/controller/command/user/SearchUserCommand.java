@@ -35,12 +35,15 @@ public class SearchUserCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String data = request.getParameter(CommandVarConstant.PART_OF_USER_LOGIN);
             List<User> users;
             UserValidator validator = new UserValidator();
 
             if (data.isEmpty()) {
-                users = UserService.getInstance().takeAllUser();
+                users = UserService.getInstance().takeAllUser(pageCount);
             } else if (!validator.partLoginValidate(data)) {
                 logger.error("wrong data :" + data);
                 return goError(request, "wrong data");

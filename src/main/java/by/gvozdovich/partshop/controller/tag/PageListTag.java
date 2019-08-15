@@ -20,13 +20,9 @@ public class PageListTag extends TagSupport {
     public int doStartTag() throws JspException {
 
         JspWriter writer = pageContext.getOut();
-        double maxPage = (double) elementCount / 10;
-        int lastPage = (int) Math.ceil(maxPage);
 
         try {
-            if (elementCount == 0) {
-                writer.write("no data");
-            } else if (lastPage != 1) {
+            if (!(pageCount == 1 && elementCount < 11)) {
                 if (pageCount == 1) {
                     writer.write("<form method=\"post\" action=\"/controller\">\n" +
                             "            <input type=\"hidden\" name=\"command\" value=\"" + command + "\"/>\n" +
@@ -35,7 +31,7 @@ public class PageListTag extends TagSupport {
                             "            <button>" + pageCount + "</button>\n" +
                             "            <button type=\"submit\" name=\"nextPage\" value=\"1\">--></button>\n" +
                             "        </form>");
-                } else if (pageCount == lastPage) {
+                } else if (elementCount < 11) {
                     writer.write("<form method=\"post\" action=\"/controller\">\n" +
                             "            <input type=\"hidden\" name=\"command\" value=\"" + command + "\"/>\n" +
                             "            <input type=\"hidden\" name=\"pageCount\" value=\"" + pageCount + "\"/>\n" +

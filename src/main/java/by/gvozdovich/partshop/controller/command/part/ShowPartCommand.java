@@ -38,13 +38,14 @@ public class ShowPartCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String type = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
             int partId = Integer.parseInt(request.getParameter(CommandVarConstant.PART_ID));
             Part part = PartService.getInstance().takePartById(partId);
-            List<Feedback> feedbacks = FeedbackService.getInstance().takeAllFeedbackByPartId(partId);
+            List<Feedback> feedbacks = FeedbackService.getInstance().takeAllFeedbackByPartIdLimit(partId, pageCount);
             request.setAttribute(CommandVarConstant.FEEDBACKS, feedbacks);
-
-            page = new TagCommand().execute(request);
 
             switch (type) {
                 case CommandVarConstant.ADMIN:

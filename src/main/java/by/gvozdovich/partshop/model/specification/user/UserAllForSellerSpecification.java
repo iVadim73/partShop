@@ -7,9 +7,14 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class UserAllForSellerSpecification implements DbEntitySpecification {
-    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE role_id = 2";
+    private static final String SQL = "SELECT user_id, login, password, email, phone, name, registration_date, discount, star, comment, bill, role_id, is_active FROM user WHERE role_id = 2 LIMIT ?, ?";
+    private static final int COUNT_PER_PAGE = 10;
+    private int start;
+    private int end;
 
-    public UserAllForSellerSpecification() {
+    public UserAllForSellerSpecification(int page) {
+        this.start = COUNT_PER_PAGE * (page - 1);
+        this.end = (COUNT_PER_PAGE * page) + 1;
     }
 
     @Override
@@ -17,6 +22,8 @@ public class UserAllForSellerSpecification implements DbEntitySpecification {
         PreparedStatement preparedStatement;
         try {
             preparedStatement = connection.prepareStatement(SQL);
+            preparedStatement.setInt(1, start);
+            preparedStatement.setInt(2, end);
         } catch (SQLException e) {
             throw new SpecificationException("all user for seller specification fail", e);
         }

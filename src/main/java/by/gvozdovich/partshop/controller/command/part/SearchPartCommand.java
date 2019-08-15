@@ -35,10 +35,8 @@ public class SearchPartCommand implements Command {
         Router page = new Router();
 
         try {
-            String data = request.getParameter(CommandVarConstant.PART_OF_CATALOG_NO);
             String type = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
-
-            page = new TagCommand().execute(request);
+            String data = request.getParameter(CommandVarConstant.PART_OF_CATALOG_NO);
 
             List<Part> parts;
             PartValidator validator = new PartValidator();

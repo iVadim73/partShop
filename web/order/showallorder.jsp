@@ -37,7 +37,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${orders}" var="order">
+                    <c:forEach begin="0" end="9" items="${orders}" var="order">
                         <tr>
                             <td>${order.orderId}</td>
                             <td>${order.dateOrder}</td>

@@ -36,7 +36,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${parts}" var="part">
+                        <c:forEach begin="0" end="9" items="${parts}" var="part">
                             <tr>
                                 <td>${part.catalogNo}</td>
                                 <td>${part.originalCatalogNo}</td>

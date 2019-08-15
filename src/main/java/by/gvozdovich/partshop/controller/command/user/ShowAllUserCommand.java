@@ -34,6 +34,9 @@ public class ShowAllUserCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String type = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
             List<User> users = null;
 
@@ -41,11 +44,11 @@ public class ShowAllUserCommand implements Command {
 
             switch (type) {
                 case CommandVarConstant.ADMIN:
-                    users = UserService.getInstance().takeAllUser();
+                    users = UserService.getInstance().takeAllUser(pageCount);
                     page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLUSER_FOR_ADMIN);
                     break;
                 case CommandVarConstant.SELLER:
-                    users = UserService.getInstance().takeAllUserForSeller();
+                    users = UserService.getInstance().takeAllUserForSeller(pageCount);
                     page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLUSER_FOR_SELLER);
                     break;
                 default:

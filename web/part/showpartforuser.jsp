@@ -28,7 +28,7 @@
                             <fmt:message key="noFeedback"/>
                         </c:when>
                         <c:otherwise>
-                            <c:forEach begin="${10 * (pageCount - 1)}" end="${10 * pageCount - 1}" items="${feedbacks}" var="feedback">
+                            <c:forEach begin="0" end="9" items="${feedbacks}" var="feedback">
                                 <fmt:message key="login"/>:${feedback.user.login} <fmt:message key="date"/>:${feedback.date} <fmt:message key="star"/>:${feedback.star}<br/>
                                 ${feedback.comment}<br/>
                                 <br/>

@@ -35,8 +35,11 @@ public class ShowAllBillCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String login = request.getParameter(CommandVarConstant.LOGIN);
-            List<Bill> bills = BillService.getInstance().takeBillByUserLogin(login);
+            List<Bill> bills = BillService.getInstance().takeBillByUserLogin(login, pageCount);
             request.setAttribute(CommandVarConstant.BILLS, bills);
             page = new TagCommand().execute(request);
             page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLBILL);

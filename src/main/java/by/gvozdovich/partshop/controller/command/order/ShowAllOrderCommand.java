@@ -34,20 +34,21 @@ public class ShowAllOrderCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String login = request.getParameter(CommandVarConstant.LOGIN);
             request.setAttribute(CommandVarConstant.LOGIN, login);
-
-            page = new TagCommand().execute(request);
 
             String userType = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
             switch (userType) {
                 case CommandVarConstant.ADMIN:
                 case CommandVarConstant.SELLER:
                     if (login == null || login.isEmpty()) {
-                        List<Order> orders = OrderService.getInstance().takeAllOrder();
+                        List<Order> orders = OrderService.getInstance().takeAllOrder(pageCount);
                         request.setAttribute(CommandVarConstant.ORDERS, orders);
                     } else {
-                        List<Order> orders = OrderService.getInstance().takeOrderByUserLogin(login);
+                        List<Order> orders = OrderService.getInstance().takeOrderByUserLogin(login, pageCount);
                         request.setAttribute(CommandVarConstant.ORDERS, orders);
                     }
                     page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLORDER);

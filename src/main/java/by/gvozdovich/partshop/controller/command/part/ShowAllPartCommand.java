@@ -34,19 +34,20 @@ public class ShowAllPartCommand implements Command {
         Router page = new Router();
 
         try {
+            page = new TagCommand().execute(request);
+
+            int pageCount = (int) request.getAttribute(CommandVarConstant.PAGE_COUNT);
             String type = (String) request.getSession().getAttribute(CommandVarConstant.USER_TYPE);
             List<Part> parts;
-
-            page = new TagCommand().execute(request);
 
             switch (type) {
                 case CommandVarConstant.ADMIN:
                 case CommandVarConstant.SELLER:
-                    parts = PartService.getInstance().takeAllPart();
+                    parts = PartService.getInstance().takeAllPartLimit(pageCount);
                     page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLPART);
                     break;
                 default:
-                    parts = PartService.getInstance().takeAllPartForUser();
+                    parts = PartService.getInstance().takeAllPartLimitForUser(pageCount);
                     page.setPage(CommandPathConstant.PATH_PAGE_SHOWALLPART_FOR_USER);
                     break;
             }

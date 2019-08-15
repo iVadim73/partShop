@@ -123,14 +123,14 @@ public class OrderService implements Service {
         return true;
     }
 
-    public List<Order> takeAllOrder() throws ServiceException {
-        DbEntitySpecification specification = new OrderAllSpecification();
+    public List<Order> takeAllOrder(int pageCount) throws ServiceException {
+        DbEntitySpecification specification = new OrderAllSpecification(pageCount);
         return takeOrder(specification);
     }
 
-    public List<Order> takeOrderByUserLogin(String login) throws ServiceException {
+    public List<Order> takeOrderByUserLogin(String login, int page) throws ServiceException {
         User user = UserService.getInstance().takeUserByLogin(login);
-        DbEntitySpecification specification = new OrderSpecificationByUserId(user.getUserId());
+        DbEntitySpecification specification = new OrderSpecificationByUserId(user.getUserId(), page);
         return takeOrder(specification);
     }
 
